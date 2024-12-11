@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import CandidateInterviews from "./CandidateInterviews";
 import CandidateStatistics from "./CandidateStatistics";
 import CandidateFeedback from "./CandidateFeedback";
+import profileimg from "../../images/candidateProfile.png";
 import axiosInstance from "../../components/common/axiosConfig";
 
 const CandidateDashboard = () => {
@@ -19,7 +20,7 @@ const CandidateDashboard = () => {
       const token = localStorage.getItem("candidateToken");
 
       if (!token) {
-        navigate("/login"); 
+        navigate("/login");
         return;
       }
 
@@ -52,7 +53,7 @@ const CandidateDashboard = () => {
           setError("Failed to fetch profile data. Please check the response.");
         }
       } catch (err) {
-        console.error("Error fetching profile:", err); 
+        console.error("Error fetching profile:", err);
         setError(
           "An error occurred while fetching the profile. Please try again."
         );
@@ -94,10 +95,7 @@ const CandidateDashboard = () => {
             <div className="flex flex-col items-center">
               <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-300 mb-4">
                 <img
-                  src={
-                    profile.profilePhoto ||
-                    "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/f8239007-7d36-45ce-a0a1-fdf91052b10e/299f5e14-73c4-4a9b-99c9-e44adbc218cf.png"
-                  }
+                  src={profile.profilePhoto || profileimg}
                   alt="Profile"
                   className="object-cover w-full h-full"
                 />
@@ -108,7 +106,7 @@ const CandidateDashboard = () => {
               <p className="text-gray-500 text-center">{profile.jobTitle}</p>
               <button
                 className="mt-4 text-[#0077B5] hover:text-[#005885] flex items-center"
-                onClick={() => navigate("/edit-profile")}
+                onClick={() => navigate("/edit-candidate-profile")}
               >
                 <Edit className="w-5 h-5 mr-2" />
                 Edit Profile
@@ -174,7 +172,7 @@ const CandidateDashboard = () => {
               </div>
             </div>
 
-            <CandidateInterviews interviews={profile.scheduledInterviews} />
+            <CandidateInterviews />
 
             <CandidateStatistics
               completedInterviews={profile.completedInterviews || 0}

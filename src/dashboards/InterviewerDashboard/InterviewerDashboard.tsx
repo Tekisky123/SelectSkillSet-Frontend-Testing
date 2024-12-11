@@ -6,6 +6,7 @@ import axiosInstance from "../../components/common/axiosConfig";
 import InterviewRequests from "./InterviewRequests";
 import InterviewerStatistics from "./InterviewerStatistics";
 import InterviewerFeedback from "./InterviewerFeedback";
+import InterviewAvailability from "./InterviewAvailability";
 
 const InterviewerDashboard = () => {
   const [profile, setProfile] = useState(null);
@@ -38,6 +39,7 @@ const InterviewerDashboard = () => {
             totalAccepted: profileData.statistics.totalAccepted || 0,
             averageRating: profileData.statistics.averageRating || 0,
             feedbacks: profileData.feedbacks || [],
+            availability: profileData.availability,
           });
         } else {
           setError("Failed to fetch profile data. Please check the response.");
@@ -83,24 +85,23 @@ const InterviewerDashboard = () => {
         <div className="flex flex-col md:flex-row gap-8">
           {/* Profile Sidebar */}
           <div className="w-full md:w-1/4 h-full bg-white shadow-xl rounded-lg p-6">
-            <div className="flex flex-col items-center mb-8">
-              <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
+            <div className="flex flex-col items-center mb-8 relative">
+              <div className="w-32 h-32 rounded-full border-4 border-gray-300 overflow-hidden mb-4 relative">
                 <img
-                  src={
-                    profile.profilePhoto ||
-                    "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/f8239007-7d36-45ce-a0a1-fdf91052b10e/299f5e14-73c4-4a9b-99c9-e44adbc218cf.png"
-                  }
+                  src={profile.profilePhoto || "https://placehold.it/150"}
                   alt="Profile"
                   className="object-cover w-full h-full"
                 />
               </div>
+
               <h2 className="text-2xl font-semibold text-center">
                 {profile.name}
               </h2>
               <p className="text-gray-500 text-center">{profile.jobTitle}</p>
+
               <button
                 className="mt-4 text-[#0077B5] hover:text-[#005885] flex items-center"
-                onClick={() => navigate("/edit-profile")}
+                onClick={() => navigate("/edit-interviewer-profile")}
               >
                 <Edit className="w-5 h-5 mr-2" />
                 Edit Profile
@@ -146,17 +147,14 @@ const InterviewerDashboard = () => {
               </div>
             </div>
 
-            {/* Interview Requests */}
+            {/* Additional Components */}
+            <InterviewAvailability allAvailability={profile.availability} />
             <InterviewRequests requests={profile.interviewRequests} />
-
-            {/* Interviewer Statistics */}
             <InterviewerStatistics
               completedInterviews={profile.completedInterviews}
               pendingRequests={profile.pendingRequests}
               totalAccepted={profile.totalAccepted}
             />
-
-            {/* Interviewer Feedback */}
             <InterviewerFeedback feedbacks={profile.feedbacks} />
           </div>
         </div>

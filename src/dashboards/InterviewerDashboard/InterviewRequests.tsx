@@ -24,7 +24,6 @@ const InterviewRequests: React.FC<InterviewRequestsProps> = ({ requests }) => {
       [id]: action === "accept" ? "Accepted" : "Ignored",
     }));
 
-    // Simulate API request here (replace with actual API call if needed)
     setTimeout(() => {
       console.log(`Request ${id} has been ${action}.`);
     }, 500);

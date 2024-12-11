@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../../common/axiosConfig";
@@ -14,6 +14,12 @@ export const CandidateSignup = () => {
     password: "",
     mobile: "",
   });
+  useEffect(() => {
+    const storedUserData = localStorage.getItem("userData");
+    if (storedUserData) {
+      setFormData(JSON.parse(storedUserData));
+    }
+  }, []);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,6 +28,7 @@ export const CandidateSignup = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    localStorage.setItem("userData", JSON.stringify(formData));
   };
 
   const validateForm = () => {
@@ -68,8 +75,8 @@ export const CandidateSignup = () => {
       setIsLoading(false);
 
       if (response.data.success) {
-        toast.success("Registration successful");
-        navigate("/candidate-login");
+        toast.success(response.data.message || "Registration successful");
+        navigate("/verify-otp"); 
       } else {
         toast.error(response.data.message || "Registration failed");
       }

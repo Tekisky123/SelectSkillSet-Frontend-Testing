@@ -14,6 +14,8 @@ import { CorporateSignup } from "./components/auth/corporate/CorporateSignup";
 import { InterviewerLogin } from "./components/auth/Interviewer/InterviewerLogin";
 import { InterviewerSignup } from "./components/auth/Interviewer/InterviewerSignup";
 import InterviewerDashboard from "./dashboards/InterviewerDashboard/InterviewerDashboard";
+import EditInterviewerProfile from "./dashboards/InterviewerDashboard/EditInterviewerProfile";
+import { VerifyOtp } from "./components/auth/VerifyOtp";
 
 function App() {
   return (
@@ -36,7 +38,18 @@ function App() {
           />
           <Route path="/interviewer-login" element={<InterviewerLogin />} />
           <Route path="/interviewer-signup" element={<InterviewerSignup />} />
-          <Route path="/edit-profile" element={<EditCandidateProfile />} />
+          <Route
+            path="/edit-candidate-profile"
+            element={<EditCandidateProfile />}
+          />
+          <Route
+            path="/edit-interviewer-profile"
+            element={<EditInterviewerProfile />}
+          />
+          <Route
+            path="/verify-otp"
+            element={<VerifyOtp />}
+          />
         </Routes>
         <Toaster />
       </div>
