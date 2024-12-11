@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../common/axiosConfig";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 
 export const VerifyOtp = () => {
   const navigate = useNavigate();
@@ -13,13 +13,17 @@ export const VerifyOtp = () => {
     index: number
   ) => {
     const value = e.target.value;
+
+    // Allow only numbers
     if (/[^0-9]/.test(value)) return;
 
     const updatedOtp = [...otp];
-    updatedOtp[index] = value;
 
+    // Handle single-digit input
+    updatedOtp[index] = value.slice(0, 1);
     setOtp(updatedOtp);
 
+    // Move focus to the next input if it's not the last one
     if (value !== "" && index < 5) {
       document.getElementById(`otp-${index + 1}`)?.focus();
     }
@@ -31,6 +35,19 @@ export const VerifyOtp = () => {
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const pastedData = e.clipboardData.getData("text").trim();
+
+    // Allow only numbers and check if the pasted data has exactly 6 digits
+    if (/^\d{6}$/.test(pastedData)) {
+      const updatedOtp = pastedData.split("").slice(0, 6);
+      setOtp(updatedOtp);
+
+      // Move focus to the last input after paste
+      document.getElementById(`otp-5`)?.focus();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     const storedData = JSON.parse(localStorage.getItem("userData") || "{}");
     const { firstName, lastName, email, mobile, password } = storedData;
@@ -39,14 +56,17 @@ export const VerifyOtp = () => {
     setIsLoading(true);
 
     try {
-      const response = await axiosInstance.post("/candidate/verifyOtpAndRegister", {
-        otp: otp.join(""),
-        firstName,
-        lastName,
-        email,
-        mobile,
-        password,
-      });
+      const response = await axiosInstance.post(
+        "/candidate/verifyOtpAndRegister",
+        {
+          otp: otp.join(""),
+          firstName,
+          lastName,
+          email,
+          mobile,
+          password,
+        }
+      );
 
       setIsLoading(false);
 
@@ -77,10 +97,13 @@ export const VerifyOtp = () => {
                 key={index}
                 id={`otp-${index}`}
                 type="text"
-                maxLength={1}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={1} // Allow only one digit
                 value={digit}
                 onChange={(e) => handleOtpChange(e, index)}
                 onKeyDown={(e) => handleOtpBackspace(e, index)}
+                onPaste={index === 0 ? handlePaste : undefined} // Handle paste only on the first input
                 className="w-12 h-12 text-center text-3xl font-bold border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300"
               />
             ))}

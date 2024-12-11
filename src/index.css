@@ -5,6 +5,8 @@
 /* @import './styles/animations.css'; */
 
 
+
+
 body {
   --sb-track-color: transparent;
   --sb-thumb-color: #0077b5;
@@ -72,4 +74,14 @@ body::-webkit-scrollbar-thumb {
     background-size: 40px 40px;
     opacity: 0.1;
   }
+}
+
+
+
+input[type="number"] {
+  -moz-appearance: textfield !important; 
+ overflow: hidden;
+  -webkit-appearance: none !important;
+  appearance: none !important; 
+  padding-right: 0 !important; 
 }
