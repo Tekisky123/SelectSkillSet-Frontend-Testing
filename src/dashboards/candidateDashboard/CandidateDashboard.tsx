@@ -38,6 +38,7 @@ const CandidateDashboard = () => {
             email: profileData.email,
             location: profileData.location || "Location not provided",
             mobile: profileData.mobile || "Mobile not provided",
+            countryCode: profileData.countryCode,
             jobTitle: profileData.jobTitle || "Job title not provided",
             profilePhoto: profileData.profilePhoto || "",
             scheduledInterviews: profileData.scheduledInterviews || [],
@@ -116,7 +117,7 @@ const CandidateDashboard = () => {
             <div className="mt-6 space-y-4">
               <div className="flex items-center text-sm text-gray-600">
                 <Phone className="w-5 h-5 mr-2" />
-                {profile.mobile}
+                {profile.countryCode} {profile.mobile}
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <MapPin className="w-5 h-5 mr-2" />
@@ -137,7 +138,10 @@ const CandidateDashboard = () => {
                   { label: "Full Name", value: profile.name },
                   { label: "Email", value: profile.email },
                   { label: "Location", value: profile.location },
-                  { label: "Mobile", value: profile.mobile },
+                  {
+                    label: "Mobile",
+                    value: [profile.countryCode, " ", profile.mobile],
+                  },
                   {
                     label: "LinkedIn",
                     value: profile.linkedIn ? (

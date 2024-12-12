@@ -50,7 +50,8 @@ export const VerifyOtp = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     const storedData = JSON.parse(localStorage.getItem("userData") || "{}");
-    const { firstName, lastName, email, mobile, password } = storedData;
+    const { firstName, lastName, email, mobile, password, countryCode } =
+      storedData;
 
     e.preventDefault();
     setIsLoading(true);
@@ -65,6 +66,7 @@ export const VerifyOtp = () => {
           email,
           mobile,
           password,
+          countryCode,
         }
       );
 
@@ -72,6 +74,7 @@ export const VerifyOtp = () => {
 
       if (response.data.success) {
         toast.success("OTP Verified Successfully!");
+        localStorage.removeItem("userData");
         navigate("/candidate-login");
       } else {
         toast.error(response.data.message || "OTP verification failed");

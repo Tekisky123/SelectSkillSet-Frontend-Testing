@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../../common/axiosConfig";
 import { Eye, EyeOff } from "lucide-react";
+import { countryData } from "../../common/countryData";
 
 export const CandidateSignup = () => {
   const navigate = useNavigate();
@@ -13,26 +14,46 @@ export const CandidateSignup = () => {
     email: "",
     password: "",
     mobile: "",
+    countryCode: "+1",
   });
-  useEffect(() => {
-    const storedUserData = localStorage.getItem("userData");
-    if (storedUserData) {
-      setFormData(JSON.parse(storedUserData));
-    }
-  }, []);
+
+  const [selectedCountry, setSelectedCountry] = useState(countryData[0]);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    localStorage.setItem("userData", JSON.stringify(formData));
+    const { name, value } = e.target;
+
+    if (name === "mobile") {
+      const numericValue = value.replace(/\D/g, "");
+      if (numericValue.length > selectedCountry.maxLength) return;
+      setFormData({
+        ...formData,
+        [name]: numericValue,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleCountryChange = (code: string) => {
+    const country = countryData.find((item) => item.code === code);
+    if (country) {
+      setSelectedCountry(country);
+      setFormData({
+        ...formData,
+        countryCode: country.code,
+        mobile: "",
+      });
+    }
   };
 
   const validateForm = () => {
-    const { firstName, lastName, email, password, mobile } = formData;
+    const { firstName, lastName, email, password, mobile, countryCode } =
+      formData;
 
     if (!firstName || !lastName || !email || !password || !mobile) {
       toast.error("Please fill in all fields");
@@ -45,9 +66,8 @@ export const CandidateSignup = () => {
       return false;
     }
 
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(mobile)) {
-      toast.error("Please enter a valid phone number");
+    if (mobile.length !== selectedCountry.maxLength) {
+      toast.error(`Phone number must be ${selectedCountry.maxLength} digits`);
       return false;
     }
 
@@ -61,7 +81,7 @@ export const CandidateSignup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    localStorage.setItem("userData", JSON.stringify(formData));
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -76,7 +96,7 @@ export const CandidateSignup = () => {
 
       if (response.data.success) {
         toast.success(response.data.message || "Registration successful");
-        navigate("/verify-otp"); 
+        navigate("/verify-otp");
       } else {
         toast.error(response.data.message || "Registration failed");
       }
@@ -94,6 +114,7 @@ export const CandidateSignup = () => {
         </h2>
 
         <form onSubmit={handleSubmit}>
+          {/* Name Fields */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <label
@@ -133,6 +154,7 @@ export const CandidateSignup = () => {
             </div>
           </div>
 
+          {/* Email Field */}
           <div className="mb-6">
             <label
               htmlFor="email"
@@ -152,6 +174,7 @@ export const CandidateSignup = () => {
             />
           </div>
 
+          {/* Password Field */}
           <div className="mb-6 relative">
             <label
               htmlFor="password"
@@ -177,25 +200,51 @@ export const CandidateSignup = () => {
             </div>
           </div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="mobile"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Phone Number
-            </label>
-            <input
-              type="text"
-              id="mobile"
-              name="mobile"
-              value={formData.mobile}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="+123456789"
-              required
-            />
+          {/* Country Code and Phone Number */}
+          <div className="mb-6 flex items-center space-x-3">
+            <div className="w-1/3">
+              <label
+                htmlFor="countryCode"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Country
+              </label>
+              <select
+                id="countryCode"
+                name="countryCode"
+                value={formData.countryCode}
+                onChange={(e) => handleCountryChange(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {countryData.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.flag} {country.name} ({country.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-2/3">
+              <label
+                htmlFor="mobile"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Phone Number
+              </label>
+              <input
+                type="text"
+                id="mobile"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+                maxLength={selectedCountry.maxLength}
+                className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your number"
+                required
+              />
+            </div>
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             className={`w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
