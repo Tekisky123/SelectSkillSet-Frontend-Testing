@@ -13,8 +13,8 @@ export const HomePage = () => {
       <LandingFeature />
       <SliderCards />
       <Features />
-      <Statistics />
-      <Testimonials />
+      {/* <Statistics /> */}
+      {/* <Testimonials /> */}
       <CallToAction />
     </div>
   );

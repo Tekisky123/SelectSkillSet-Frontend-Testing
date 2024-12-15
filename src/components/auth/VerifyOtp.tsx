@@ -82,7 +82,7 @@ export const VerifyOtp = () => {
     } catch (error) {
       setIsLoading(false);
       toast.error("An error occurred, please try again later.");
-      console.error("Error:", error); // For debugging purposes
+      console.error("Error:", error);
     }
   };
 

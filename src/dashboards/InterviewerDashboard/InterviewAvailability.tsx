@@ -1,104 +1,102 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash } from "lucide-react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import axiosInstance from "../../components/common/axiosConfig";
+import toast from "react-hot-toast";
 
 interface Availability {
-  dateFrom: string;
-  dateTo: string;
-  timeFrom: string;
-  timeTo: string;
-  status: "available" | "unavailable";
+  date: string;
+  _id: string;
 }
 
-interface InterviewAvailabilityProps {
-  allAvailability: Availability | null;
-}
-
-const InterviewAvailability: React.FC<InterviewAvailabilityProps> = ({
-  allAvailability: initialAvailability,
-}) => {
-  const [availability, setAvailability] = useState<Availability>({
-    dateFrom: "",
-    dateTo: "",
-    timeFrom: "",
-    timeTo: "",
-    status: "available",
-  });
-
-  const [allAvailability, setAllAvailability] = useState<Availability | null>(
-    initialAvailability
-  );
-  const [isLoading, setIsLoading] = useState(false);
+const InterviewAvailability: React.FC = () => {
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const [availabilities, setAvailabilities] = useState<Availability[]>([]);
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAvailability({ ...availability, [e.target.name]: e.target.value });
-  };
-
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setAvailability({
-      ...availability,
-      status: e.target.value as "available" | "unavailable",
-    });
-  };
-
-  const fetchLatestAvailability = async () => {
+  const fetchAvailabilities = async () => {
     try {
       const response = await axiosInstance.get("/interviewer/getAvailability");
-      if (response.data && response.data.success) {
-        setAllAvailability(response.data.availability);
+      if (response.data?.success) {
+        setAvailabilities(response.data.availability || []);
       }
     } catch (error) {
-      console.error("Error fetching latest availability:", error);
+      toast.error("Error fetching availabilities.");
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDateClick = (date: Date) => {
+    const formattedDate = date.toLocaleDateString("en-CA");
+    if (
+      availabilities.some((avail) => avail.date === formattedDate) ||
+      selectedDates.includes(formattedDate)
+    ) {
+      toast.error("This date is already selected or available.");
+      return;
+    }
+
+    setSelectedDates((prevDates) =>
+      prevDates.includes(formattedDate)
+        ? prevDates.filter((d) => d !== formattedDate)
+        : [...prevDates, formattedDate]
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (selectedDates.length === 0) return;
+
     setIsLoading(true);
     try {
-      const response = await axiosInstance.post("/interviewer/addAvailability", availability);
-  
-      if (response.data && response.data.success) {
-        // Update the state with the newly added availability
-        setAllAvailability({
-          dateFrom: availability.dateFrom,
-          dateTo: availability.dateTo,
-          timeFrom: availability.timeFrom,
-          timeTo: availability.timeTo,
-          status: availability.status,
-        });
-        setIsAccordionOpen(false);
+      const response = await axiosInstance.post("/interviewer/addAvailability", {
+        dates: selectedDates.map((date) => new Date(date).toISOString()),
+      });
+      if (response.data?.success) {
+        fetchAvailabilities();
+        setSelectedDates([]);
+        toast.success("Availabilities saved successfully.");
+        setIsAccordionOpen(false); // Close accordion on success
       } else {
-        console.error("Failed to update availability.");
+        toast.error("Failed to save availabilities.");
       }
     } catch (error) {
-      console.error("Error saving availability:", error);
+      toast.error("Error saving availabilities.");
     } finally {
       setIsLoading(false);
     }
   };
-  
 
-  const formatTime = (time: string) => {
-    const [hour, minute] = time.split(":").map(Number);
-    const isPM = hour >= 12;
-    const formattedHour = hour % 12 || 12;
-    const amPm = isPM ? "PM" : "AM";
-    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${amPm}`;
+  const deleteAvailability = async (date: string) => {
+    try {
+      const response = await axiosInstance.delete("/interviewer/deleteAvailability", {
+        data: { date },
+      });
+      if (response.data?.success) {
+        fetchAvailabilities();
+        toast.success("Availability deleted successfully.");
+      } else {
+        toast.error("Failed to delete availability.");
+      }
+    } catch (error) {
+      toast.error("Error deleting availability.");
+    }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (date: string) => {
     const options: Intl.DateTimeFormatOptions = {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     };
-    return date.toLocaleDateString(undefined, options);
+    return new Date(date).toLocaleDateString(undefined, options);
   };
+
+  useEffect(() => {
+    fetchAvailabilities();
+  }, []);
 
   return (
     <motion.div
@@ -106,156 +104,87 @@ const InterviewAvailability: React.FC<InterviewAvailabilityProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className="bg-white shadow-md rounded-lg p-6"
+      className="bg-white shadow-lg rounded-xl p-8 max-w-4xl mx-auto border border-gray-200"
     >
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Manage Interview Availability</h2>
+        <h2 className="text-3xl font-semibold text-gray-900">Availability Scheduler</h2>
       </div>
 
       <div
         onClick={() => setIsAccordionOpen(!isAccordionOpen)}
-        className="flex items-center cursor-pointer text-gray-600"
+        className="flex items-center justify-between bg-gray-100 text-gray-700 px-5 py-3 rounded-lg shadow-sm cursor-pointer hover:bg-gray-200 transition"
       >
-        <h3 className="text-lg font-semibold mr-2">Set Availability</h3>
-        {isAccordionOpen ? <ChevronUp /> : <ChevronDown />}
+        <h3 className="text-lg font-medium">Set Available Dates</h3>
+        {isAccordionOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
       </div>
 
       {isAccordionOpen && (
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div>
-            <label
-              htmlFor="dateFrom"
-              className="block text-sm font-medium text-gray-600"
-            >
-              From Date
-            </label>
-            <input
-              type="date"
-              id="dateFrom"
-              name="dateFrom"
-              value={availability.dateFrom}
-              onChange={handleInputChange}
-              className="mt-1 p-2 border rounded-md w-full"
-              required
+        <motion.div
+          initial={{ height: 0 }}
+          animate={{ height: "auto" }}
+          exit={{ height: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mt-4 overflow-hidden"
+        >
+          <p className="text-sm text-gray-600 mb-3">
+            Select your available dates. Click a date to toggle selection.
+          </p>
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <Calendar
+              onClickDay={handleDateClick}
+              tileClassName={({ date }) => {
+                const formattedDate = date.toLocaleDateString("en-CA");
+                if (selectedDates.includes(formattedDate)) {
+                  return "bg-blue-400 text-white rounded-full";
+                }
+                if (availabilities.some((avail) => avail.date === formattedDate)) {
+                  return "bg-green-100 text-green-600 rounded-full font-semibold";
+                }
+                return "hover:bg-gray-100";
+              }}
+              minDate={new Date()}
+              className="w-full mx-auto border-none rounded-lg"
             />
           </div>
-          <div>
-            <label
-              htmlFor="dateTo"
-              className="block text-sm font-medium text-gray-600"
-            >
-              To Date
-            </label>
-            <input
-              type="date"
-              id="dateTo"
-              name="dateTo"
-              value={availability.dateTo}
-              onChange={handleInputChange}
-              className="mt-1 p-2 border rounded-md w-full"
-              required
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="timeFrom"
-              className="block text-sm font-medium text-gray-600"
-            >
-              From Time
-            </label>
-            <input
-              type="time"
-              id="timeFrom"
-              name="timeFrom"
-              value={availability.timeFrom}
-              onChange={handleInputChange}
-              className="mt-1 p-2 border rounded-md w-full"
-              required
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="timeTo"
-              className="block text-sm font-medium text-gray-600"
-            >
-              To Time
-            </label>
-            <input
-              type="time"
-              id="timeTo"
-              name="timeTo"
-              value={availability.timeTo}
-              onChange={handleInputChange}
-              className="mt-1 p-2 border rounded-md w-full"
-              required
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-gray-600"
-            >
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={availability.status}
-              onChange={handleStatusChange}
-              className="mt-1 p-2 border rounded-md w-full"
-            >
-              <option value="available">Available</option>
-              <option value="unavailable">Unavailable</option>
-            </select>
-          </div>
-          <div className="flex justify-end">
+          <div className="mt-5 flex justify-end space-x-3">
             <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-              disabled={isLoading}
+              onClick={handleSubmit}
+              className="px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition disabled:bg-gray-300"
+              disabled={isLoading || selectedDates.length === 0}
             >
-              {isLoading ? "Saving..." : "Save Availability"}
+              {isLoading ? "Saving..." : "Save Dates"}
+            </button>
+            <button
+              onClick={() => setSelectedDates([])}
+              className="px-5 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
+            >
+              Clear Selection
             </button>
           </div>
-        </form>
+        </motion.div>
       )}
 
       <div className="mt-8">
-        <h3 className="text-lg font-semibold">Your Availability</h3>
-        {allAvailability ? (
-          <div
-            className={`border rounded-lg p-4 ${
-              allAvailability.status === "available"
-                ? "border-green-500"
-                : "border-red-500"
-            }`}
-          >
-            <p className="text-gray-700">
-              <span className="font-semibold">From:</span>{" "}
-              {`${formatDate(allAvailability.dateFrom)} ${formatTime(
-                allAvailability.timeFrom
-              )}`}
-            </p>
-            <p className="text-gray-700">
-              <span className="font-semibold">To:</span>{" "}
-              {`${formatDate(allAvailability.dateTo)} ${formatTime(
-                allAvailability.timeTo
-              )}`}
-            </p>
-            <p
-              className={`font-semibold ${
-                allAvailability.status === "available"
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
-              {allAvailability.status === "available"
-                ? "Available"
-                : "Not Available"}
-            </p>
-          </div>
+        <h3 className="text-xl font-medium text-gray-800 mb-3">Your Availabilities</h3>
+        {availabilities.length > 0 ? (
+          <ul className="divide-y divide-gray-200">
+            {availabilities.map((item) => (
+              <li
+                key={item._id}
+                className="flex justify-between items-center py-3 px-4 hover:bg-gray-100 rounded-lg"
+              >
+                <span className="text-gray-700">{formatDate(item.date)}</span>
+                <button
+                  onClick={() => deleteAvailability(item.date)}
+                  className="text-red-500 hover:text-red-700 transition"
+                >
+                  <Trash size={18} />
+                </button>
+              </li>
+            ))}
+          </ul>
         ) : (
-          <p>No availability set yet.</p>
+          <p className="text-gray-500">No availabilities set yet.</p>
         )}
       </div>
     </motion.div>

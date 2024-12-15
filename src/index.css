@@ -85,3 +85,16 @@ input[type="number"] {
   appearance: none !important; 
   padding-right: 0 !important; 
 }
+
+
+.highlight-selected-date {
+  background-color: green !important;
+  color: white !important;
+}
+
+.highlight-available-date {
+  background-color: red !important;
+  color: white !important;
+  pointer-events: none; 
+}
+

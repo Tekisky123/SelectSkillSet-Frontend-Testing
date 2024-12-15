@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../../common/axiosConfig";
 import { Eye, EyeOff } from "lucide-react";
+import { countryData } from "../../common/countryData";  // Assuming you have countryData similar to the second example
 
 export const InterviewerSignup = () => {
   const navigate = useNavigate();
@@ -12,22 +13,49 @@ export const InterviewerSignup = () => {
     lastName: "",
     email: "",
     password: "",
-    phoneNumber: "",
+    mobile: "",
+    countryCode: "+1",  // Default country code
   });
+
+  const [selectedCountry, setSelectedCountry] = useState(countryData[0]);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    if (name === "mobile") {
+      const numericValue = value.replace(/\D/g, "");  // Allow only numbers
+      if (numericValue.length <= selectedCountry.maxLength) {
+        setFormData({
+          ...formData,
+          [name]: numericValue,
+        });
+      }
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleCountryChange = (code: string) => {
+    const country = countryData.find((item) => item.code === code);
+    if (country) {
+      setSelectedCountry(country);
+      setFormData({
+        ...formData,
+        countryCode: country.code,
+        mobile: "",
+      });
+    }
   };
 
   const validateForm = () => {
-    const { firstName, lastName, email, password, phoneNumber } = formData;
+    const { firstName, lastName, email, password, mobile, countryCode } = formData;
 
-    if (!firstName || !lastName || !email || !password || !phoneNumber) {
+    if (!firstName || !lastName || !email || !password || !mobile) {
       toast.error("Please fill in all fields");
       return false;
     }
@@ -38,9 +66,8 @@ export const InterviewerSignup = () => {
       return false;
     }
 
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(phoneNumber)) {
-      toast.error("Please enter a valid phone number");
+    if (mobile.length !== selectedCountry.maxLength) {
+      toast.error(`Phone number must be ${selectedCountry.maxLength} digits`);
       return false;
     }
 
@@ -60,10 +87,7 @@ export const InterviewerSignup = () => {
     setIsLoading(true);
 
     try {
-      const response = await axiosInstance.post(
-        "/interviewer/register",
-        formData
-      );
+      const response = await axiosInstance.post("/interviewer/register", formData);
 
       setIsLoading(false);
 
@@ -87,12 +111,10 @@ export const InterviewerSignup = () => {
         </h2>
 
         <form onSubmit={handleSubmit}>
+          {/* Name Fields */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <label
-                htmlFor="firstName"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                 First Name
               </label>
               <input
@@ -107,10 +129,7 @@ export const InterviewerSignup = () => {
               />
             </div>
             <div>
-              <label
-                htmlFor="lastName"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
                 Last Name
               </label>
               <input
@@ -126,11 +145,9 @@ export const InterviewerSignup = () => {
             </div>
           </div>
 
+          {/* Email Field */}
           <div className="mb-6">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
@@ -145,11 +162,9 @@ export const InterviewerSignup = () => {
             />
           </div>
 
+          {/* Password Field */}
           <div className="mb-6 relative">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <input
@@ -170,23 +185,42 @@ export const InterviewerSignup = () => {
             </div>
           </div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="phoneNumber"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Phone Number
-            </label>
-            <input
-              type="text"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="+123456789"
-              required
-            />
+          {/* Country Code and Phone Number */}
+          <div className="mb-6 flex items-center space-x-3">
+            <div className="w-1/3">
+              <label htmlFor="countryCode" className="block text-sm font-medium text-gray-700">
+                Country
+              </label>
+              <select
+                id="countryCode"
+                name="countryCode"
+                value={formData.countryCode}
+                onChange={(e) => handleCountryChange(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {countryData.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.flag} {country.name} ({country.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-2/3">
+              <label htmlFor="mobile" className="block text-sm font-medium text-gray-700">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                id="mobile"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+                maxLength={selectedCountry.maxLength}
+                className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your phone number"
+                required
+              />
+            </div>
           </div>
 
           <button

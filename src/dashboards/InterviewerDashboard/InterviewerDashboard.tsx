@@ -7,6 +7,7 @@ import InterviewRequests from "./InterviewRequests";
 import InterviewerStatistics from "./InterviewerStatistics";
 import InterviewerFeedback from "./InterviewerFeedback";
 import InterviewAvailability from "./InterviewAvailability";
+import profileimg from "../../images/interviewerProfile.png";
 
 const InterviewerDashboard = () => {
   const [profile, setProfile] = useState(null);
@@ -31,7 +32,7 @@ const InterviewerDashboard = () => {
             location: profileData.location || "Location not provided",
             mobile: profileData.mobile || "Mobile not provided",
             jobTitle: profileData.jobTitle || "Job title not provided",
-            profilePhoto: profileData.profilePhoto || "",
+            profilePhoto: profileData.profilePhoto || profileimg,
             interviewRequests: profileData.interviewRequests || [],
             completedInterviews:
               profileData.statistics.completedInterviews || 0,
@@ -88,7 +89,7 @@ const InterviewerDashboard = () => {
             <div className="flex flex-col items-center mb-8 relative">
               <div className="w-32 h-32 rounded-full border-4 border-gray-300 overflow-hidden mb-4 relative">
                 <img
-                  src={profile.profilePhoto || "https://placehold.it/150"}
+                  src={profile.profilePhoto}
                   alt="Profile"
                   className="object-cover w-full h-full"
                 />

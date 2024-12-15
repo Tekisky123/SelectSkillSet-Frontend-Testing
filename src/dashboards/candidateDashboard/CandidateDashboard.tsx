@@ -3,7 +3,7 @@ import { Briefcase, Edit, MapPin, Phone } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import CandidateInterviews from "./CandidateInterviews";
-import CandidateStatistics from "./CandidateStatistics";
+// import CandidateStatistics from "./CandidateStatistics";
 import CandidateFeedback from "./CandidateFeedback";
 import profileimg from "../../images/candidateProfile.png";
 import axiosInstance from "../../components/common/axiosConfig";
@@ -41,6 +41,7 @@ const CandidateDashboard = () => {
             countryCode: profileData.countryCode,
             jobTitle: profileData.jobTitle || "Job title not provided",
             profilePhoto: profileData.profilePhoto || "",
+            linkedIn:profileData.linkedIn,
             scheduledInterviews: profileData.scheduledInterviews || [],
             completedInterviews:
               profileData.statistics.monthlyStatistics.completedInterviews || 0,
@@ -145,8 +146,12 @@ const CandidateDashboard = () => {
                   {
                     label: "LinkedIn",
                     value: profile.linkedIn ? (
-                      <a href={profile.linkedIn} className="text-blue-500">
-                        {profile.linkedIn}
+                      <a
+                        href={profile.linkedIn}
+                        target="_blank"
+                        className="text-blue-500"
+                      >
+                        {new URL(profile.linkedIn).pathname.slice(4)}
                       </a>
                     ) : (
                       "Not Provided"
@@ -178,12 +183,12 @@ const CandidateDashboard = () => {
 
             <CandidateInterviews />
 
-            <CandidateStatistics
+            {/* <CandidateStatistics
               completedInterviews={profile.completedInterviews || 0}
               averageRating={profile.averageRating || 0}
               feedbackCount={profile.feedbacks ? profile.feedbacks.length : 0} // Passing the count as a number
               feedbacks={profile.feedbacks || []}
-            />
+            /> */}
 
             <CandidateFeedback feedbacks={profile.feedback} />
           </div>

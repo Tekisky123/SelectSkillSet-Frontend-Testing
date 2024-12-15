@@ -46,12 +46,31 @@ function App() {
             path="/edit-interviewer-profile"
             element={<EditInterviewerProfile />}
           />
-          <Route
-            path="/verify-otp"
-            element={<VerifyOtp />}
-          />
+          <Route path="/verify-otp" element={<VerifyOtp />} />
         </Routes>
-        <Toaster />
+        <Toaster
+          toastOptions={{
+            duration: 5000,
+            style: {
+              fontSize: "18px",
+              padding: "16px",
+              borderRadius: "8px",
+              background: "#333",
+              color: "#fff",
+              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            },
+            success: {
+              style: {
+                background: "#28a745",
+              },
+            },
+            error: {
+              style: {
+                background: "#dc3545",
+              },
+            },
+          }}
+        />
       </div>
     </Router>
   );

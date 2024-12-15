@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Upload, Link as LinkIcon } from "lucide-react";
+import { Edit2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import axiosInstance from "../../components/common/axiosConfig";
+import { countryData } from "../../components/common/countryData"; 
 
 const EditCandidateProfile = () => {
   const navigate = useNavigate();
@@ -12,53 +13,51 @@ const EditCandidateProfile = () => {
   const allowedUpdates = [
     "firstName",
     "lastName",
-    "email",
     "jobTitle",
     "location",
+    "countryCode",
     "mobile",
     "profilePhoto",
+    "linkedIn",
   ];
 
   const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
-    email: "",
     jobTitle: "",
     location: "",
+    countryCode: "",
     mobile: "",
     profilePhoto: "",
+    linkedIn: "",
   });
 
   const [photoUrl, setPhotoUrl] = useState("");
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const [isPhotoFromGallery, setIsPhotoFromGallery] = useState(false);
+  const [countryCodes, setCountryCodes] = useState([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axiosInstance.get("/candidate/getProfile");
-        setProfile(response.data.profile);
+        const profileResponse = await axiosInstance.get("/candidate/getProfile");
+        setProfile(profileResponse.data.profile);
+
+        // Use countryData directly to set countryCodes
+        setCountryCodes(countryData);
       } catch (error) {
-        toast.error("Failed to load profile. Please try again later.");
+        toast.error("Failed to load profile or country codes. Please try again later.");
       }
     };
+
     fetchProfile();
   }, [token]);
 
   const handleSave = async () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const mobileRegex = /^[0-9]{10,15}$/;
 
-    if (
-      !profile.firstName ||
-      !profile.lastName ||
-      !profile.email ||
-      !profile.mobile
-    ) {
+    if (!profile.firstName || !profile.lastName || !profile.mobile) {
       toast.error("All fields are required.");
-      return;
-    }
-
-    if (!emailRegex.test(profile.email)) {
-      toast.error("Invalid email format.");
       return;
     }
 
@@ -85,19 +84,41 @@ const EditCandidateProfile = () => {
     const file = e.target.files[0];
     if (file) {
       setProfile({ ...profile, profilePhoto: URL.createObjectURL(file) });
+      setIsPhotoFromGallery(true);
       toast.success("Profile photo uploaded successfully!");
     }
   };
 
   const handlePhotoUrlSubmit = () => {
-    if (!photoUrl) {
+    if (!isPhotoFromGallery && !photoUrl) {
       toast.error("Please enter a valid photo URL.");
       return;
     }
 
-    setProfile({ ...profile, profilePhoto: photoUrl });
-    toast.success("Profile photo URL updated successfully!");
-    setPhotoUrl("");
+    const urlRegex = /^(https?:\/\/[^\s$.?#].[^\s]*)$/i;
+    if (!isPhotoFromGallery && photoUrl && !urlRegex.test(photoUrl)) {
+      toast.error("Invalid URL format. Please enter a valid photo URL.");
+      return;
+    }
+
+    if (!isPhotoFromGallery) {
+      setProfile({ ...profile, profilePhoto: photoUrl });
+      toast.success("Profile photo URL updated successfully!");
+      setPhotoUrl("");
+    }
+
+    if (isPhotoFromGallery) {
+      toast.success("Profile photo uploaded successfully!");
+    }
+
+    setShowPhotoOptions(false);
+  };
+
+  const handleRemovePhoto = () => {
+    setProfile({ ...profile, profilePhoto: "" });
+    setIsPhotoFromGallery(false);
+    toast.success("Profile photo removed.");
+    setShowPhotoOptions(false); 
   };
 
   return (
@@ -112,10 +133,89 @@ const EditCandidateProfile = () => {
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
           Edit Candidate Profile
         </h2>
+
+        {/* Profile Photo */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-300 mb-4">
+            <img
+              src={profile.profilePhoto || "default-image.png"}
+              alt="Profile"
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <button
+            className="relative bottom-36 left-10 bg-blue-600 text-white rounded-full p-2"
+            onClick={() => setShowPhotoOptions(true)}
+          >
+            <Edit2 className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Photo Options Modal */}
+        {showPhotoOptions && (
+          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-96">
+              <h3 className="text-xl font-semibold mb-4">
+                Change Profile Photo
+              </h3>
+              <div className="space-y-4">
+                {/* Upload from Device */}
+                {!isPhotoFromGallery && (
+                  <div className="flex items-center gap-4">
+                    <label className="w-1/3 text-gray-700">
+                      Upload from Device
+                    </label>
+                    <input
+                      type="file"
+                      className="w-2/3"
+                      onChange={handleUploadPhoto}
+                    />
+                  </div>
+                )}
+                {/* Enter URL */}
+                {!isPhotoFromGallery && (
+                  <div className="flex items-center gap-4">
+                    <label className="w-1/3 text-gray-700">Enter URL</label>
+                    <input
+                      type="text"
+                      value={photoUrl}
+                      onChange={(e) => setPhotoUrl(e.target.value)}
+                      className="w-2/3 p-2 border border-gray-300 rounded-lg"
+                      placeholder="Profile Photo URL"
+                    />
+                  </div>
+                )}
+                {/* Remove and Save */}
+                <div className="flex justify-between space-x-4 mt-6">
+                  <button
+                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                    onClick={() => setShowPhotoOptions(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-red-600 text-white py-2 px-4 rounded-lg"
+                    onClick={handleRemovePhoto}
+                  >
+                    Remove Profile
+                  </button>
+                  <button
+                    className="bg-blue-600 text-white py-2 px-4 rounded-lg"
+                    onClick={handlePhotoUrlSubmit}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Form Fields */}
         <div className="space-y-6">
           {allowedUpdates.map(
             (field) =>
-              field !== "profilePhoto" && (
+              field !== "profilePhoto" && field !== "countryCode" && (
                 <div key={field} className="flex flex-col gap-2">
                   <label className="font-medium text-gray-700 capitalize">
                     {field.replace(/([A-Z])/g, " $1")}
@@ -132,53 +232,42 @@ const EditCandidateProfile = () => {
                 </div>
               )
           )}
-
-          <div className="space-y-4">
-            <label className="font-medium text-gray-700">Profile Photo</label>
-            <div className="flex flex-col gap-4 sm:flex-row">
-              {/* Upload from Device */}
-              <label className="flex items-center justify-center w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-all cursor-pointer">
-                <Upload className="w-5 h-5 mr-2" />
-                Upload from Device
-                <input
-                  type="file"
-                  className="hidden"
-                  onChange={handleUploadPhoto}
-                />
-              </label>
-              {/* Enter Photo URL */}
-              <div className="flex items-center gap-2 w-full">
-                <input
-                  type="text"
-                  value={photoUrl}
-                  onChange={(e) => setPhotoUrl(e.target.value)}
-                  placeholder="Enter Photo URL"
-                  className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-500 transition-all"
-                  onClick={handlePhotoUrlSubmit}
-                >
-                  Submit
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex space-x-4 mt-6">
-            <button
-              className="w-full sm:w-auto bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              onClick={handleSave}
+          {/* Country Code Dropdown */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-gray-700 capitalize">
+              Country Code
+            </label>
+            <select
+              value={profile.countryCode || ""}
+              onChange={(e) =>
+                setProfile({ ...profile, countryCode: e.target.value })
+              }
+              className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              Save Changes
-            </button>
-            <button
-              className="w-full sm:w-auto bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all"
-              onClick={() => navigate("/candidate-dashboard")}
-            >
-              Cancel
-            </button>
+              <option value="">Select Country Code</option>
+              {countryCodes.map((code) => (
+                <option key={code.isoCode} value={code.code}>
+                  {code.name} ({code.code})
+                </option>
+              ))}
+            </select>
           </div>
+        </div>
+
+        {/* Save and Cancel Buttons */}
+        <div className="flex space-x-4 mt-6">
+          <button
+            className="w-full sm:w-auto bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onClick={handleSave}
+          >
+            Save Changes
+          </button>
+          <button
+            className="w-full sm:w-auto bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            onClick={() => navigate("/candidate-dashboard")}
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </motion.div>

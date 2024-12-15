@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+import heroBg from "../../images/260179.jpg"; 
 
 export const Hero = () => {
   const scrollToFeatures = () => {
@@ -9,11 +10,13 @@ export const Hero = () => {
   };
 
   return (
-<div className="relative min-h-screen bg-gradient-to-br from-[#0077B5]/10 to-[#F3F2EF] flex items-center">
-  <div className="absolute inset-0 overflow-hidden">
-    <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]" />
-  </div>
-
+    <div
+      className="relative min-h-screen flex items-center bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${heroBg})`, 
+        backgroundSize:"cover"
+      }}
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
