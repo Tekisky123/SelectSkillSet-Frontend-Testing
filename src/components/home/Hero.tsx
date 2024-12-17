@@ -1,23 +1,23 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
-import heroBg from "../../images/260179.jpg"; 
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
+import heroBg from "../../images/newBG.jpg";
 
 export const Hero = () => {
   const scrollToFeatures = () => {
-    const featuresSection = document.getElementById('features');
-    featuresSection?.scrollIntoView({ behavior: 'smooth' });
+    const featuresSection = document.getElementById("features");
+    featuresSection?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <div
       className="relative min-h-screen flex items-center bg-cover bg-center"
       style={{
-        backgroundImage: `url(${heroBg})`, 
-        backgroundSize:"cover"
+        backgroundImage: `url(${heroBg})`,
+        backgroundSize: "cover",
       }}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative backdrop-blur-sm">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -30,7 +30,7 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-6"
           >
-            Find Your Next Opportunity with{' '}
+            Find Your Next Opportunity with{" "}
             <span className="text-[#0077B5]">Tailored Solutions</span>
           </motion.h1>
 
@@ -40,7 +40,8 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl md:text-2xl text-gray-600 mb-12"
           >
-            Empowering job seekers, interviewers, and corporates to connect seamlessly
+            Empowering job seekers, interviewers and corporates to connect
+            seamlessly
           </motion.p>
 
           <motion.div

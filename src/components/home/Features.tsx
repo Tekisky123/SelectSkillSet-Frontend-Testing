@@ -6,51 +6,51 @@ import { Users, Award, Building2, Briefcase, Globe, Star } from "lucide-react";
 const features = [
   {
     icon: Users,
-    title: "For Candidates",
+    title: "Real-World Experience",
     description:
-      "Access top-rated interviewers, schedule mock interviews, and enhance your job readiness with personalized guidance.",
+      "Practice interviews with experts who work in the industry you aspire to join.",
     color: "bg-blue-50",
-    iconColor: "text-blue-500",
+    iconColor: "text-[#0077B5]",
   },
   {
     icon: Award,
-    title: "For Interviewers",
+    title: "Personalized Feedback",
     description:
-      "Share your expertise, build your reputation, and earn rewards by conducting professional interviews.",
-    color: "bg-green-50",
-    iconColor: "text-green-500",
+      "Receive in-depth evaluations to target specific areas of improvement.",
+    color: "bg-blue-50",
+    iconColor: "text-[#0077B5]",
   },
   {
     icon: Building2,
-    title: "For Corporates",
+    title: "Enhanced Hiring Process",
     description:
-      "Simplify your hiring process with data-driven insights, real-time feedback, and expert evaluations.",
-    color: "bg-purple-50",
-    iconColor: "text-purple-500",
+      "HR teams gain access to a curated pool of skilled and pre-assessed candidates.",
+    color: "bg-blue-50",
+    iconColor: "text-[#0077B5]",
   },
   {
     icon: Briefcase,
-    title: "Career Growth",
+    title: "Skill Development Focus",
     description:
-      "Unlock career opportunities with tailored resources, curated job listings, and expert advice.",
-    color: "bg-yellow-50",
-    iconColor: "text-yellow-500",
+      "Not just mock interviews—but a path to becoming the best version of yourself.",
+    color: "bg-blue-50",
+    iconColor: "text-[#0077B5]",
   },
   {
     icon: Globe,
     title: "Global Reach",
     description:
       "Connect with professionals, candidates, and interviewers from across the globe, anytime, anywhere.",
-    color: "bg-indigo-50",
-    iconColor: "text-indigo-500",
+    color: "bg-blue-50",
+    iconColor: "text-[#0077B5]",
   },
   {
     icon: Star,
     title: "Trusted Platform",
     description:
       "Join thousands of users who trust us for transparent, efficient, and impactful hiring solutions.",
-    color: "bg-red-50",
-    iconColor: "text-red-500",
+    color: "bg-blue-50",
+    iconColor: "text-[#0077B5]",
   },
 ];
 
@@ -78,7 +78,7 @@ const FeatureCard: React.FC<{
       <div className={`${iconColor} mb-4`}>
         <Icon size={36} strokeWidth={1.5} />
       </div>
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      <h3 className="text-xl font-semibold mb-2 text-[#0077B5]">{title}</h3>
       <p className="text-gray-600">{description}</p>
     </motion.div>
   );
@@ -95,7 +95,7 @@ export const Features: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold mb-4 text-gray-800">
+          <h2 className="text-4xl font-bold mb-4 text-[#0077B5]">
             Why Choose Us?
           </h2>
           <p className="text-lg md:text-xl text-gray-600">

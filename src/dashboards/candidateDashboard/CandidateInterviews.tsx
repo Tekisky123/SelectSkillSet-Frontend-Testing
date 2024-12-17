@@ -38,13 +38,16 @@ const CandidateInterviews = () => {
       try {
         const response = await axiosInstance.get("/candidate/interviewers");
         if (response.data.success) {
-          setInterviewers(response.data.interviewers);
+          if (response.data.interviewers.length === 0) {
+            setError("No interviewers available at the moment.");
+          } else {
+            setInterviewers(response.data.interviewers);
+          }
         } else {
           setError("Failed to fetch interviewers.");
         }
       } catch (err) {
-        console.error(err);
-        setError("An error occurred while fetching interviewers.");
+        setError("No interviewers found");
       } finally {
         setLoading(false);
       }
@@ -87,7 +90,6 @@ const CandidateInterviews = () => {
       if (response.data.success) {
         toast.success("Interview scheduled successfully!");
         playSound();
-
         setModalVisible(false);
       } else {
         if (response.data.message) {
@@ -119,91 +121,92 @@ const CandidateInterviews = () => {
     return <div className="text-center text-gray-500">Loading...</div>;
   }
 
-  if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
-  }
-
   return (
     <div className="bg-white shadow-lg rounded-lg p-8 max-w-5xl mx-auto">
       <h2 className="text-3xl font-bold text-[#0077B5] mb-8 text-center">
         Schedule an Interview
       </h2>
-      <div className="space-y-8">
-        {paginatedInterviewers.map((interviewer) => (
-          <div
-            key={interviewer._id}
-            className="p-6 rounded-lg shadow-lg border border-gray-200 bg-gradient-to-r from-white to-gray-100 flex flex-col md:flex-row items-center gap-6"
-          >
-            <img
-              src={interviewer.profilePhoto || profile}
-              alt={interviewer.firstName}
-              className="w-24 h-24 rounded-full object-cover border border-gray-300 shadow-md"
-            />
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold text-[#0077B5]">
-                {interviewer.firstName}
-              </h3>
-              <p className="text-gray-600">{interviewer.jobTitle}</p>
-              {interviewer.experience && (
-                <p className="text-gray-600 mt-1">
-                  Experience: {interviewer.experience} years
-                </p>
-              )}
-              {interviewer.price && (
-                <p className="text-gray-600 mt-1">
-                  Pricing:{" "}
-                  <span className="font-bold text-green-600">
-                    ${interviewer.price}
-                  </span>
-                </p>
-              )}
-              <div className="mt-4">
-                <h4 className="text-gray-800 font-semibold mb-2">
-                  Available Dates:
-                </h4>
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                  {interviewer.availability.dates
-                    .slice(0, viewMore[interviewer._id] ? undefined : 6)
-                    .map((date) => {
-                      return (
-                        <div
-                          key={date._id}
-                          className="p-2 bg-gray-100 rounded-lg flex flex-col items-center shadow-sm border border-gray-300"
-                        >
-                          <Calendar className="w-5 h-5 text-[#0077B5]" />
-                          <span className="text-sm text-gray-700 mt-1">
-                            {new Date(date.date).toLocaleDateString("en-GB")}
-                          </span>
-                          <button
-                            onClick={() =>
-                              handleBookSlot(
-                                interviewer._id,
-                                date._id,
-                                date.date
-                              )
-                            }
-                            className="mt-2 text-xs py-1 px-3 rounded-lg transition bg-[#0077B5] text-white hover:bg-[#005885]"
-                          >
-                            Book Slot
-                          </button>
-                        </div>
-                      );
-                    })}
-                </div>
 
-                {interviewer.availability.dates.length > 6 && (
-                  <button
-                    onClick={() => toggleViewMore(interviewer._id)}
-                    className="mt-4 text-sm text-[#0077B5] hover:underline"
-                  >
-                    {viewMore[interviewer._id] ? "View Less" : "View More"}
-                  </button>
+      {error ? (
+        <div className="text-center text-red-500">{error}</div>
+      ) : (
+        <div className="space-y-8">
+          {paginatedInterviewers.map((interviewer) => (
+            <div
+              key={interviewer._id}
+              className="p-6 rounded-lg shadow-lg border border-gray-200 bg-gradient-to-r from-white to-gray-100 flex flex-col md:flex-row items-center gap-6"
+            >
+              <img
+                src={interviewer.profilePhoto || profile}
+                alt={interviewer.firstName}
+                className="w-24 h-24 rounded-full object-cover border border-gray-300 shadow-md"
+              />
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-[#0077B5]">
+                  {interviewer.firstName}
+                </h3>
+                <p className="text-gray-600">{interviewer.jobTitle}</p>
+                {interviewer.experience && (
+                  <p className="text-gray-600 mt-1">
+                    Experience: {interviewer.experience} years
+                  </p>
                 )}
+                {interviewer.price && (
+                  <p className="text-gray-600 mt-1">
+                    Pricing:{" "}
+                    <span className="font-bold text-green-600">
+                      ${interviewer.price}
+                    </span>
+                  </p>
+                )}
+                <div className="mt-4">
+                  <h4 className="text-gray-800 font-semibold mb-2">
+                    Available Dates:
+                  </h4>
+                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                    {interviewer.availability.dates
+                      .slice(0, viewMore[interviewer._id] ? undefined : 6)
+                      .map((date) => {
+                        return (
+                          <div
+                            key={date._id}
+                            className="p-2 bg-gray-100 rounded-lg flex flex-col items-center shadow-sm border border-gray-300"
+                          >
+                            <Calendar className="w-5 h-5 text-[#0077B5]" />
+                            <span className="text-sm text-gray-700 mt-1">
+                              {new Date(date.date).toLocaleDateString("en-GB")}
+                            </span>
+                            <button
+                              onClick={() =>
+                                handleBookSlot(
+                                  interviewer._id,
+                                  date._id,
+                                  date.date
+                                )
+                              }
+                              className="mt-2 text-xs py-1 px-3 rounded-lg transition bg-[#0077B5] text-white hover:bg-[#005885]"
+                            >
+                              Book Slot
+                            </button>
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  {interviewer.availability.dates.length > 6 && (
+                    <button
+                      onClick={() => toggleViewMore(interviewer._id)}
+                      className="mt-4 text-sm text-[#0077B5] hover:underline"
+                    >
+                      {viewMore[interviewer._id] ? "View Less" : "View More"}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {interviewers.length > itemsPerPage && (
         <div className="flex justify-between items-center mt-8">

@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import axiosInstance from "../../components/common/axiosConfig";
 import { countryData } from "../../components/common/countryData"; // Import countryData
 
+
 const EditInterviewerProfile = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("interviewerToken");
@@ -62,7 +63,7 @@ const EditInterviewerProfile = () => {
   const handleSave = async () => {
     const mobileRegex = /^[0-9]{10,15}$/;
     const priceRegex = /^[0-9]+(\.[0-9]{1,2})?$/;
-
+  
     if (
       !profile.firstName ||
       !profile.lastName ||
@@ -73,33 +74,38 @@ const EditInterviewerProfile = () => {
       toast.error("All fields are required.");
       return;
     }
-
+  
     if (!mobileRegex.test(profile.mobile)) {
       toast.error("Invalid mobile number.");
       return;
     }
-
+  
     if (!priceRegex.test(profile.price)) {
       toast.error("Invalid price format.");
       return;
     }
-
+  
     try {
       const updatedData = Object.fromEntries(
         Object.entries(profile).filter(([key]) => allowedUpdates.includes(key))
       );
-
+  
       // Ensure countryCode is included separately in the payload
       updatedData.countryCode = selectedCountry.code;
-
-      await axiosInstance.put("/interviewer/updateProfile", updatedData);
-
-      toast.success("Profile updated successfully!");
-      navigate("/interviewer-dashboard");
+  
+      const response = await axiosInstance.put("/interviewer/updateProfile", updatedData);
+  
+      if (response.data.success) {
+        toast.success("Profile updated successfully!");
+        navigate("/interviewer-dashboard");
+      } else {
+        toast.error(response.data.message || "Failed to update profile. Please try again.");
+      }
     } catch (error) {
       toast.error("Failed to update profile. Please try again.");
     }
   };
+  
 
   const handleCountryChange = (e) => {
     const countryCode = e.target.value;

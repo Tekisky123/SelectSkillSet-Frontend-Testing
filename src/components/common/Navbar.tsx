@@ -4,7 +4,6 @@ import { Menu, X } from "lucide-react";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [userLoggedIn, setUserLoggedIn] = React.useState(false);
   const navigate = useNavigate();
   const menuRef = useRef(null);
 
@@ -13,10 +12,7 @@ export const Navbar = () => {
   const interviewerToken = localStorage.getItem("interviewerToken");
   const corporateToken = localStorage.getItem("corporateToken");
 
-  useEffect(() => {
-    // Check if any token is present to determine login status
-    setUserLoggedIn(!!(candidateToken || interviewerToken || corporateToken));
-  }, [candidateToken, interviewerToken, corporateToken]);
+  const userLoggedIn = !!(candidateToken || interviewerToken || corporateToken);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -47,77 +43,79 @@ export const Navbar = () => {
     localStorage.removeItem("candidateToken");
     localStorage.removeItem("interviewerToken");
     localStorage.removeItem("corporateToken");
-    setUserLoggedIn(false);
     navigate("/"); // Redirect to home after logout
   };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 left-0 w-full z-50 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className=" mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          {/* Logo on the left */}
           <div className="flex items-center space-x-3">
             <Link to="/" className="flex items-center">
-              <span className="text-indigo-600 text-3xl font-bold tracking-wider">
+              <span className="text-[#0077B5] text-3xl font-bold tracking-wider uppercase">
                 Selectskillset
               </span>
             </Link>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link
-              to="/"
-              className="text-gray-800 hover:text-indigo-600 transition duration-300"
-            >
-              Home
-            </Link>
-            <Link
-              to="/products"
-              className="text-gray-800 hover:text-indigo-600 transition duration-300"
-            >
-              Products
-            </Link>
-            <Link
-              to="/about"
-              className="text-gray-800 hover:text-indigo-600 transition duration-300"
-            >
-              About Us
-            </Link>
-            <Link
-              to="/become-interviewer"
-              className="text-gray-800 hover:text-indigo-600 transition duration-300"
-            >
-              Become an Interviewer
-            </Link>
-            {userLoggedIn ? (
+          <div className="hidden md:flex items-center space-x-6 ml-auto">
+            {!userLoggedIn ? (
+              <>
+                <Link
+                  to="/"
+                  className="text-gray-800 hover:text-[#0077B5] transition duration-300"
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/products"
+                  className="text-gray-800 hover:text-[#0077B5] transition duration-300"
+                >
+                  Products
+                </Link>
+                <Link
+                  to="/about"
+                  className="text-gray-800 hover:text-[#0077B5] transition duration-300"
+                >
+                  About Us
+                </Link>
+                <Link
+                  to="/become-interviewer"
+                  className="text-gray-800 hover:text-[#0077B5] transition duration-300"
+                >
+                  Become an Interviewer
+                </Link>
+                <Link
+                  to="/login"
+                  className="text-gray-800 hover:text-[#0077B5] font-medium transition duration-300"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/request-demo"
+                  className="bg-[#0077B5] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#005f8d] transition duration-300"
+                >
+                  Request Demo
+                </Link>
+              </>
+            ) : (
               <>
                 <button
                   onClick={handleProfileNavigation}
-                  className="text-gray-800 hover:text-indigo-600 font-medium transition duration-300"
+                  className="bg-[#0077B5] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#005f8d] font-medium transition duration-300"
                 >
                   Dashboard
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="text-gray-800 hover:text-red-600 font-medium transition duration-300"
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-700 font-medium transition duration-300"
                 >
                   Logout
                 </button>
               </>
-            ) : (
-              <Link
-                to="/login"
-                className="text-gray-800 hover:text-indigo-600 font-medium transition duration-300"
-              >
-                Login
-              </Link>
             )}
-            <Link
-              to="/request-demo"
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-indigo-500 transition duration-300"
-            >
-              Request Demo
-            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -126,7 +124,11 @@ export const Navbar = () => {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-800 focus:outline-none"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -140,47 +142,67 @@ export const Navbar = () => {
         } transition-transform duration-300 ease-in-out`}
       >
         <div className="flex justify-end p-4">
-          <button onClick={closeMenu} className="text-gray-800 focus:outline-none">
+          <button
+            onClick={closeMenu}
+            className="text-gray-800 focus:outline-none"
+          >
             <X className="w-6 h-6" />
           </button>
         </div>
         <div className="flex flex-col items-center space-y-6 mt-10">
-          <Link
-            to="/"
-            className="text-gray-800 hover:text-indigo-600 text-lg transition duration-300"
-            onClick={closeMenu}
-          >
-            Home
-          </Link>
-          <Link
-            to="/products"
-            className="text-gray-800 hover:text-indigo-600 text-lg transition duration-300"
-            onClick={closeMenu}
-          >
-            Products
-          </Link>
-          <Link
-            to="/about"
-            className="text-gray-800 hover:text-indigo-600 text-lg transition duration-300"
-            onClick={closeMenu}
-          >
-            About Us
-          </Link>
-          <Link
-            to="/become-interviewer"
-            className="text-gray-800 hover:text-indigo-600 text-lg transition duration-300"
-            onClick={closeMenu}
-          >
-            Become an Interviewer
-          </Link>
-          {userLoggedIn ? (
+          {!userLoggedIn ? (
+            <>
+              <Link
+                to="/"
+                className="text-gray-800 hover:text-[#0077B5] text-lg transition duration-300"
+                onClick={closeMenu}
+              >
+                Home
+              </Link>
+              <Link
+                to="/products"
+                className="text-gray-800 hover:text-[#0077B5] text-lg transition duration-300"
+                onClick={closeMenu}
+              >
+                Products
+              </Link>
+              <Link
+                to="/about"
+                className="text-gray-800 hover:text-[#0077B5] text-lg transition duration-300"
+                onClick={closeMenu}
+              >
+                About Us
+              </Link>
+              <Link
+                to="/become-interviewer"
+                className="text-gray-800 hover:text-[#0077B5] text-lg transition duration-300"
+                onClick={closeMenu}
+              >
+                Become an Interviewer
+              </Link>
+              <Link
+                to="/login"
+                className="text-[#0077B5] font-medium text-lg transition duration-300"
+                onClick={closeMenu}
+              >
+                Login
+              </Link>
+              <Link
+                to="/request-demo"
+                className="bg-[#0077B5] text-white px-6 py-2 rounded-lg shadow-md hover:bg-[#005f8d] text-lg transition duration-300"
+                onClick={closeMenu}
+              >
+                Request Demo
+              </Link>
+            </>
+          ) : (
             <>
               <button
                 onClick={() => {
                   closeMenu();
                   handleProfileNavigation();
                 }}
-                className="text-gray-800 hover:text-indigo-600 text-lg transition duration-300"
+                className="bg-[#0077B5] text-white px-6 py-2 rounded-lg shadow-md hover:bg-[#005f8d] text-lg transition duration-300"
               >
                 Dashboard
               </button>
@@ -189,27 +211,12 @@ export const Navbar = () => {
                   closeMenu();
                   handleLogout();
                 }}
-                className="text-gray-800 hover:text-red-600 text-lg transition duration-300"
+                className="bg-red-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-red-700 text-lg transition duration-300"
               >
                 Logout
               </button>
             </>
-          ) : (
-            <Link
-              to="/login"
-              className="text-indigo-600 font-medium text-lg transition duration-300"
-              onClick={closeMenu}
-            >
-              Login
-            </Link>
           )}
-          <Link
-            to="/request-demo"
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-indigo-500 text-lg transition duration-300"
-            onClick={closeMenu}
-          >
-            Request Demo
-          </Link>
         </div>
       </div>
     </nav>

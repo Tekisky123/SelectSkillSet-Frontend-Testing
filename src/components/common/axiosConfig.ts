@@ -1,21 +1,16 @@
 import axios from "axios";
 
-
-
-
 const axiosInstance = axios.create({
   baseURL: "https://select-skill-set-backend.vercel.app",
-  
+
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-
-
 // const axiosInstance = axios.create({
 //   baseURL: "http://localhost:5000",
-  
+
 //   headers: {
 //     "Content-Type": "application/json",
 //   },
