@@ -81,7 +81,7 @@ export const CandidateSignup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("userData", JSON.stringify(formData));
+    sessionStorage.setItem("userData", JSON.stringify(formData));
     if (!validateForm()) return;
 
     setIsLoading(true);

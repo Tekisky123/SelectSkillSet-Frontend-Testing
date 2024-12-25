@@ -40,8 +40,8 @@ export const InterviewerLogin = () => {
 
       setIsLoading(false);
       if (response.data.success) {
-        // Save token in localStorage
-        localStorage.setItem("interviewerToken", response.data.token);
+        // Save token in sessionStorage
+        sessionStorage.setItem("interviewerToken", response.data.token);
 
         toast.success("Login successful");
         navigate("/interviewer-dashboard");

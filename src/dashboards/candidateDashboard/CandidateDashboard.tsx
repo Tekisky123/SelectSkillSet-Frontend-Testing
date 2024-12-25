@@ -18,7 +18,7 @@ const CandidateDashboard = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem("candidateToken");
+      const token = sessionStorage.getItem("candidateToken");
 
       if (!token) {
         navigate("/login");

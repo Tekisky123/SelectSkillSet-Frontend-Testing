@@ -18,9 +18,9 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const interviewerToken = localStorage.getItem("interviewerToken");
-    const candidateToken = localStorage.getItem("candidateToken");
-    const corporateToken = localStorage.getItem("corporateToken");
+    const interviewerToken = sessionStorage.getItem("interviewerToken");
+    const candidateToken = sessionStorage.getItem("candidateToken");
+    const corporateToken = sessionStorage.getItem("corporateToken");
 
     let token;
     if (interviewerToken) {

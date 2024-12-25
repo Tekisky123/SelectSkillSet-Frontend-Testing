@@ -8,7 +8,7 @@ import { countryData } from "../../components/common/countryData"; // Import cou
 
 const EditInterviewerProfile = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("interviewerToken");
+  const token = sessionStorage.getItem("interviewerToken");
 
   const allowedUpdates = [
     "firstName",

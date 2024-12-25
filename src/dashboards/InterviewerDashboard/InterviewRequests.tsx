@@ -16,8 +16,8 @@ const InterviewRequests: React.FC = () => {
   const [requests, setRequests] = useState<InterviewRequest[]>([]);
   const [responseStatus, setResponseStatus] = useState<Record<string, string>>(
     () => {
-      // Load saved statuses from localStorage on initial load
-      const savedStatus = localStorage.getItem("interviewStatus");
+      // Load saved statuses from sessionStorage on initial load
+      const savedStatus = sessionStorage.getItem("interviewStatus");
       return savedStatus ? JSON.parse(savedStatus) : {};
     }
   );
@@ -54,19 +54,7 @@ const InterviewRequests: React.FC = () => {
         status: action,
       };
 
-      const response = await axiosInstance.put(
-        "/interviewer/updateInterviewRequest",
-        payload
-      );
-
-      if (response.data.success) {
-        if (action === "Approved") {
-          const googleOAuthUrl = `https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?client_id=YOUR_GOOGLE_CLIENT_ID&redirect_uri=http%3A%2F%2Flocalhost%3A5173&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&access_type=offline&service=lso&o2v=1&ddm=1&flowName=GeneralOAuthFlow`;
-          window.location.href = googleOAuthUrl;
-        }
-      } else {
-        console.error("Failed to update request:", response.data.message);
-      }
+      await axiosInstance.put("/interviewer/updateInterviewRequest", payload);
     } catch (error) {
       console.error("Error handling response for request:", error);
     }

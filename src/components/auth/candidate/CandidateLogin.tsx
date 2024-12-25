@@ -40,8 +40,8 @@ export const CandidateLogin = () => {
 
       setIsLoading(false);
       if (response.data.success) {
-        // Save token in localStorage
-        localStorage.setItem("candidateToken", response.data.token);
+        // Save token in sessionStorage
+        sessionStorage.setItem("candidateToken", response.data.token);
 
         toast.success("Login successful");
         navigate("/candidate-dashboard");

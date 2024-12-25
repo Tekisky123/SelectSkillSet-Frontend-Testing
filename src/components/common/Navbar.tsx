@@ -7,10 +7,10 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const menuRef = useRef(null);
 
-  // Retrieve tokens from localStorage
-  const candidateToken = localStorage.getItem("candidateToken");
-  const interviewerToken = localStorage.getItem("interviewerToken");
-  const corporateToken = localStorage.getItem("corporateToken");
+  // Retrieve tokens from sessionStorage
+  const candidateToken = sessionStorage.getItem("candidateToken");
+  const interviewerToken = sessionStorage.getItem("interviewerToken");
+  const corporateToken = sessionStorage.getItem("corporateToken");
 
   const userLoggedIn = !!(candidateToken || interviewerToken || corporateToken);
 
@@ -40,9 +40,9 @@ export const Navbar = () => {
 
   // Handle logout action
   const handleLogout = () => {
-    localStorage.removeItem("candidateToken");
-    localStorage.removeItem("interviewerToken");
-    localStorage.removeItem("corporateToken");
+    sessionStorage.removeItem("candidateToken");
+    sessionStorage.removeItem("interviewerToken");
+    sessionStorage.removeItem("corporateToken");
     navigate("/"); // Redirect to home after logout
   };
 

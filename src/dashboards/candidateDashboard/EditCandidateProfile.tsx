@@ -8,7 +8,7 @@ import { countryData } from "../../components/common/countryData";
 
 const EditCandidateProfile = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("candidateToken");
+  const token = sessionStorage.getItem("candidateToken");
 
   const allowedUpdates = [
     "firstName",
