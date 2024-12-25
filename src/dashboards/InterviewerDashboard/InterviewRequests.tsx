@@ -50,15 +50,15 @@ const InterviewRequests: React.FC = () => {
   ) => {
     try {
       const payload = {
-        interviewRequestId: id, 
+        interviewRequestId: id,
         status: action,
       };
-  
+
       const response = await axiosInstance.put(
         "/interviewer/updateInterviewRequest",
         payload
       );
-  
+
       if (response.data.success) {
         if (action === "Approved") {
           const googleOAuthUrl = `https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?client_id=YOUR_GOOGLE_CLIENT_ID&redirect_uri=http%3A%2F%2Flocalhost%3A5173&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&access_type=offline&service=lso&o2v=1&ddm=1&flowName=GeneralOAuthFlow`;
@@ -71,7 +71,6 @@ const InterviewRequests: React.FC = () => {
       console.error("Error handling response for request:", error);
     }
   };
-  
 
   return (
     <motion.div
