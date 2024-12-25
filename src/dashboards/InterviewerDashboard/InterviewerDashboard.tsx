@@ -95,9 +95,7 @@ const InterviewerDashboard = () => {
                 />
               </div>
 
-              <h2 className="text-2xl font-semibold text-center">
-                {profile.name}
-              </h2>
+              <h2 className="text-2xl font-semibold text-center">{profile.name}</h2>
               <p className="text-gray-500 text-center">{profile.jobTitle}</p>
 
               <button
@@ -125,27 +123,28 @@ const InterviewerDashboard = () => {
             </div>
           </div>
 
-          {/* Main Content Area */}
+          {/* Main Content */}
           <div className="flex-1 space-y-10">
-            {/* Profile Details */}
+            {/* Profile Details Table */}
             <div className="bg-white shadow-xl rounded-lg p-6">
               <h2 className="text-2xl font-semibold mb-6">Profile Details</h2>
-              <div className="space-y-4">
-                {[
-                  { label: "Full Name", value: profile.name },
-                  { label: "Email", value: profile.email },
-                ].map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center py-2 border-b"
-                  >
-                    <span className="font-medium text-gray-600">
-                      {item.label}
-                    </span>
-                    <span className="text-gray-700">{item.value}</span>
-                  </div>
-                ))}
-              </div>
+              <table className="min-w-full table-auto border-separate border-spacing-2">
+                <tbody>
+                  {[ 
+                    { label: "Full Name", value: profile.name },
+                    { label: "Email", value: profile.email },
+                  ].map((item, index) => (
+                    <tr key={index} className="border-b border-gray-200">
+                      <td className="px-4 py-2 text-left font-medium text-gray-600">
+                        {item.label}
+                      </td>
+                      <td className="px-4 py-2 text-left text-gray-700">
+                        {item.value}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             {/* Additional Components */}

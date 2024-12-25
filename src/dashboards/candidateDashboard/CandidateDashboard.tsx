@@ -31,7 +31,9 @@ const CandidateDashboard = () => {
         if (response.data?.success) {
           const profileData = response.data.profile || {};
           setProfile({
-            name: `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim(),
+            name: `${profileData.firstName || ""} ${
+              profileData.lastName || ""
+            }`.trim(),
             email: profileData.email || "Email not provided",
             location: profileData.location || "Location not provided",
             mobile: profileData.mobile || "Mobile not provided",
@@ -40,9 +42,13 @@ const CandidateDashboard = () => {
             profilePhoto: profileData.profilePhoto || profileimg,
             linkedIn: profileData.linkedIn || "",
             scheduledInterviews: profileData.scheduledInterviews || [],
-            completedInterviews: profileData.statistics?.monthlyStatistics?.completedInterviews || 0,
-            averageRating: profileData.statistics?.monthlyStatistics?.averageRating || 0,
-            feedbackCount: profileData.statistics?.monthlyStatistics?.feedbackCount || 0,
+            completedInterviews:
+              profileData.statistics?.monthlyStatistics?.completedInterviews ||
+              0,
+            averageRating:
+              profileData.statistics?.monthlyStatistics?.averageRating || 0,
+            feedbackCount:
+              profileData.statistics?.monthlyStatistics?.feedbackCount || 0,
             feedback: profileData.statistics?.feedbacks || [],
           });
         } else {
@@ -125,7 +131,9 @@ const CandidateDashboard = () => {
               <h2 className="text-2xl font-semibold text-gray-800 text-center">
                 {profile.name}
               </h2>
-              <p className="text-sm text-gray-600 text-center">{profile.jobTitle}</p>
+              <p className="text-sm text-gray-600 text-center">
+                {profile.jobTitle}
+              </p>
               <button
                 className="mt-4 text-[#0077B5] hover:text-[#005885] flex items-center"
                 onClick={() => navigate("/edit-candidate-profile")}
@@ -153,39 +161,73 @@ const CandidateDashboard = () => {
 
           {/* Main Content */}
           <div className="md:col-span-3 space-y-8">
+            {/* Profile Details */}
             <div className="bg-white shadow-lg rounded-xl p-6">
               <h2 className="text-xl font-semibold mb-6">Profile Details</h2>
               <div className="space-y-4">
-                {[ 
-                  { label: "Full Name", value: profile.name },
-                  { label: "Email", value: profile.email },
-                  { label: "Location", value: profile.location },
-                  { label: "Mobile", value: `${profile.countryCode} ${profile.mobile}` },
-                  { label: "LinkedIn", value: profile.linkedIn ? (
-                    <a href={profile.linkedIn} target="_blank" className="text-blue-500 hover:underline">
-                      {new URL(profile.linkedIn).pathname.slice(4)}
-                    </a>
-                  ) : "Not Provided" },
-                  { label: "Resume", value: profile.resume ? (
-                    <a href={profile.resume} className="text-blue-500 hover:underline">Download Resume</a>
-                  ) : "Not Provided" },
-                ].map((item, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <span className="font-medium text-gray-600">{item.label}</span>
-                    <span className="text-gray-700">{item.value}</span>
-                  </div>
-                ))}
+                <table className="min-w-full table-auto border-separate border-spacing-2">
+                  <tbody>
+                    {[
+                      { label: "Full Name", value: profile.name },
+                      { label: "Email", value: profile.email },
+                      { label: "Location", value: profile.location },
+                      {
+                        label: "Mobile",
+                        value: `${profile.countryCode} ${profile.mobile}`,
+                      },
+                      {
+                        label: "LinkedIn",
+                        value: profile.linkedIn ? (
+                          <a
+                            href={profile.linkedIn}
+                            target="_blank"
+                            className="text-blue-500 hover:underline"
+                          >
+                            {new URL(profile.linkedIn).pathname.slice(4)}
+                          </a>
+                        ) : (
+                          "Not Provided"
+                        ),
+                      },
+                      {
+                        label: "Resume",
+                        value: profile.resume ? (
+                          <a
+                            href={profile.resume}
+                            className="text-blue-500 hover:underline"
+                          >
+                            Download Resume
+                          </a>
+                        ) : (
+                          "Not Provided"
+                        ),
+                      },
+                    ].map((item, index) => (
+                      <tr key={index} className="border-b border-gray-200">
+                        <td className="px-4 py-2 text-left font-medium text-gray-600">
+                          {item.label}
+                        </td>
+                        <td className="px-4 py-2 text-left text-gray-700">
+                          {item.value}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            {/* My Interviews */}
             <div className="bg-white shadow-lg rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">My Interviews</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                My Upcoming Interviews
+              </h3>
               {interviews.length > 0 ? (
                 interviews.map((interview) => (
                   <div
                     key={interview.id || Math.random()}
-                    className={`p-4 border rounded-lg flex items-center justify-between mb-4 shadow-md ${getStatusColor(interview.status)}`}
+                    className={`p-4 border rounded-lg flex items-center justify-between mb-4 shadow-md ${getStatusColor(
+                      interview.status
+                    )}`}
                   >
                     <div className="flex items-center">
                       <img
@@ -200,9 +242,15 @@ const CandidateDashboard = () => {
                         <p className="text-sm text-gray-500">
                           {interview.date || "TBD"}
                         </p>
+                        <p className="text-sm text-gray-500">
+                          {interview.from || "Time not specified"} -{" "}
+                          {interview.to || "Time not specified"} GMT
+                        </p>
                       </div>
                     </div>
-                    <div className="text-sm font-medium">{interview.status }</div>
+                    <div className="text-sm font-medium">
+                      {interview.status}
+                    </div>
                   </div>
                 ))
               ) : (
@@ -210,7 +258,7 @@ const CandidateDashboard = () => {
               )}
             </div>
 
-            <CandidateInterviews/>
+            <CandidateInterviews />
             <CandidateFeedback feedbacks={profile.feedback} />
           </div>
         </div>

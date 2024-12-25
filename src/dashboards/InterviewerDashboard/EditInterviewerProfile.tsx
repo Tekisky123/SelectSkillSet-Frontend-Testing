@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 import axiosInstance from "../../components/common/axiosConfig";
 import { countryData } from "../../components/common/countryData"; // Import countryData
 
-
 const EditInterviewerProfile = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("interviewerToken");
@@ -50,8 +49,9 @@ const EditInterviewerProfile = () => {
           countryCode: response.data.profile.countryCode || countryData[0].code, // Ensure countryCode is part of the profile
         });
         setSelectedCountry(
-          countryData.find((item) => item.code === response.data.profile.countryCode) ||
-            countryData[0]
+          countryData.find(
+            (item) => item.code === response.data.profile.countryCode
+          ) || countryData[0]
         );
       } catch (error) {
         toast.error("Failed to load profile. Please try again later.");
@@ -63,7 +63,7 @@ const EditInterviewerProfile = () => {
   const handleSave = async () => {
     const mobileRegex = /^[0-9]{10,15}$/;
     const priceRegex = /^[0-9]+(\.[0-9]{1,2})?$/;
-  
+
     if (
       !profile.firstName ||
       !profile.lastName ||
@@ -74,38 +74,42 @@ const EditInterviewerProfile = () => {
       toast.error("All fields are required.");
       return;
     }
-  
+
     if (!mobileRegex.test(profile.mobile)) {
       toast.error("Invalid mobile number.");
       return;
     }
-  
+
     if (!priceRegex.test(profile.price)) {
       toast.error("Invalid price format.");
       return;
     }
-  
+
     try {
       const updatedData = Object.fromEntries(
         Object.entries(profile).filter(([key]) => allowedUpdates.includes(key))
       );
-  
+
       // Ensure countryCode is included separately in the payload
       updatedData.countryCode = selectedCountry.code;
-  
-      const response = await axiosInstance.put("/interviewer/updateProfile", updatedData);
-  
+
+      const response = await axiosInstance.put(
+        "/interviewer/updateProfile",
+        updatedData
+      );
+
       if (response.data.success) {
         toast.success("Profile updated successfully!");
         navigate("/interviewer-dashboard");
       } else {
-        toast.error(response.data.message || "Failed to update profile. Please try again.");
+        toast.error(
+          response.data.message || "Failed to update profile. Please try again."
+        );
       }
     } catch (error) {
       toast.error("Failed to update profile. Please try again.");
     }
   };
-  
 
   const handleCountryChange = (e) => {
     const countryCode = e.target.value;
@@ -179,11 +183,15 @@ const EditInterviewerProfile = () => {
         {showPhotoOptions && (
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-96">
-              <h3 className="text-xl font-semibold mb-4">Change Profile Photo</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                Change Profile Photo
+              </h3>
               <div className="space-y-4">
                 {/* Upload from Device */}
                 <div className="flex items-center gap-4">
-                  <label className="w-1/3 text-gray-700">Upload from Device</label>
+                  <label className="w-1/3 text-gray-700">
+                    Upload from Device
+                  </label>
                   <input
                     type="file"
                     className="w-2/3"
@@ -233,7 +241,8 @@ const EditInterviewerProfile = () => {
         <div className="space-y-6">
           {allowedUpdates.map(
             (field) =>
-              field !== "profilePhoto" && field !== "countryCode" && (
+              field !== "profilePhoto" &&
+              field !== "countryCode" && (
                 <div key={field} className="flex flex-col gap-2">
                   <label className="font-medium text-gray-700 capitalize">
                     {field.replace(/([A-Z])/g, " $1")}
@@ -241,26 +250,31 @@ const EditInterviewerProfile = () => {
                   {field === "mobile" ? (
                     <>
                       {/* Country Code Dropdown */}
-                      <select
-                        value={selectedCountry.code}
-                        onChange={handleCountryChange}
-                        className="w-1/4 p-2 border border-gray-300 rounded-lg"
-                      >
-                        {countryData.map((country) => (
-                          <option key={country.isoCode} value={country.code}>
-                            {country.code} {country.name}
-                          </option>
-                        ))}
-                      </select>
-
-                      {/* Mobile Number Input */}
-                      <input
-                        type="text"
-                        value={profile.mobile || ""}
-                        onChange={handleMobileChange}
-                        className="text-gray-800 p-4 rounded-lg border border-gray-300 w-3/4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter mobile number"
-                      />
+                      <div className="space-y-6">
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          <select
+                            value={selectedCountry.code}
+                            onChange={handleCountryChange}
+                            className="p-3 rounded-lg border border-gray-300"
+                          >
+                            {countryData.map((country) => (
+                              <option
+                                key={country.isoCode}
+                                value={country.code}
+                              >
+                                {country.code} {country.name}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            type="text"
+                            value={profile.mobile || ""}
+                            onChange={handleMobileChange}
+                            className="p-3 flex-1 rounded-lg border border-gray-300"
+                            placeholder="Enter mobile number"
+                          />
+                        </div>
+                      </div>
                     </>
                   ) : (
                     <input

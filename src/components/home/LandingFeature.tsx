@@ -80,46 +80,51 @@ export const LandingFeature = () => {
   return (
     <section className="relative py-12 sm:py-16 md:py-24 bg-gradient-to-r from-blue-50 to-white overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-16 relative z-10">
-        {features.map((feature, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: index % 2 === 0 ? -60 : 60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1 }}
-            className={`flex flex-col sm:flex-row items-center justify-between mb-12 md:mb-20 space-y-8 sm:space-y-0 ${
-              index % 2 === 0 ? "" : "sm:flex-row-reverse"
-            }`}
-          >
-            {/* Image Section */}
-            <div className="w-full sm:w-1/2 flex-shrink-0 overflow-hidden shadow-xl transform transition-transform duration-500">
-              <img
-                src={feature.image}
-                alt={feature.title}
-                className="w-full h-auto object-contain sm:object-cover rounded-lg shadow-lg"
-              />
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12">
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1 }}
+              className="bg-white shadow-xl rounded-lg overflow-hidden hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105 flex flex-col"
+            >
+              {/* Image Section */}
+              <div
+                className="w-full h-56 sm:h-64 lg:h-72 bg-cover bg-center transition-all duration-300 ease-in-out transform "
+                style={{ backgroundImage: `url(${feature.image})` }}
+              ></div>
 
-            {/* Content Section */}
-            <div className="w-full sm:w-1/2 sm:pl-6 md:pl-12 mt-6 sm:mt-0 text-center sm:text-left">
-              <h2 className="text-2xl sm:text-3xl font-semibold text-[#0077B5] mb-4 sm:mb-6">
-                {feature.title}
-              </h2>
-              <ul className="text-sm sm:text-base text-gray-700 mb-6 list-inside space-y-3">
-                {feature.points.map((point, idx) => (
-                  <li key={idx} className="leading-relaxed">
-                    <span className="font-semibold">{point.title}:</span> {point.description}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to={feature.link}
-                className="block sm:inline-block w-full sm:w-auto px-6 py-3 bg-[#0077B5] text-white text-sm sm:text-base rounded-lg font-semibold transform transition-all duration-300 hover:scale-105 hover:bg-[#005582] shadow-lg"
-              >
-                {feature.buttonText}
-              </Link>
-            </div>
-          </motion.div>
-        ))}
+              {/* Content Section */}
+              <div className="p-6 flex flex-col justify-between flex-grow">
+                {/* Title */}
+                <h2 className="text-xl sm:text-2xl font-semibold text-[#0077B5] text-center mb-3">
+                  {feature.title}
+                </h2>
+
+                {/* Points List */}
+                <ul className="text-sm sm:text-base text-gray-700 space-y-3 text-left mb-3">
+                  {feature.points.map((point, idx) => (
+                    <li key={idx} className="leading-relaxed">
+                      <span className="font-semibold">{point.title}:</span>{" "}
+                      {point.description}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Button */}
+                <div className="text-center mt-auto">
+                  <Link
+                    to={feature.link}
+                    className="block w-full sm:w-auto px-6 py-3 bg-[#0077B5] text-white text-sm sm:text-base rounded-lg font-semibold transition-all duration-300 ease-in-out hover:bg-[#005582] transform "
+                  >
+                    {feature.buttonText}
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

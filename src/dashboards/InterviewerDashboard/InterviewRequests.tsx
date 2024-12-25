@@ -15,7 +15,11 @@ interface InterviewRequest {
 const InterviewRequests: React.FC = () => {
   const [requests, setRequests] = useState<InterviewRequest[]>([]);
   const [responseStatus, setResponseStatus] = useState<Record<string, string>>(
-    {}
+    () => {
+      // Load saved statuses from localStorage on initial load
+      const savedStatus = localStorage.getItem("interviewStatus");
+      return savedStatus ? JSON.parse(savedStatus) : {};
+    }
   );
 
   useEffect(() => {
@@ -40,27 +44,26 @@ const InterviewRequests: React.FC = () => {
     fetchRequests();
   }, []);
 
-  const handleResponse = async (id: string, action: "Approved" | "Cancelled") => {
+  const handleResponse = async (
+    id: string,
+    action: "Approved" | "Cancelled"
+  ) => {
     try {
       const payload = {
-        interviewRequestId: id,
+        interviewRequestId: id, 
         status: action,
       };
-
-      console.log("Payload being sent:", payload);
-
+  
       const response = await axiosInstance.put(
         "/interviewer/updateInterviewRequest",
         payload
       );
-
-      console.log("Response from server:", response.data);
-
+  
       if (response.data.success) {
-        setResponseStatus((prev) => ({
-          ...prev,
-          [id]: action,
-        }));
+        if (action === "Approved") {
+          const googleOAuthUrl = `https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?client_id=YOUR_GOOGLE_CLIENT_ID&redirect_uri=http%3A%2F%2Flocalhost%3A5173&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&access_type=offline&service=lso&o2v=1&ddm=1&flowName=GeneralOAuthFlow`;
+          window.location.href = googleOAuthUrl;
+        }
       } else {
         console.error("Failed to update request:", response.data.message);
       }
@@ -68,6 +71,7 @@ const InterviewRequests: React.FC = () => {
       console.error("Error handling response for request:", error);
     }
   };
+  
 
   return (
     <motion.div
@@ -119,13 +123,19 @@ const InterviewRequests: React.FC = () => {
                 <div className="flex space-x-3">
                   <button
                     onClick={() => handleResponse(request.id, "Approved")}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
+                    className={`px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition ${
+                      responseStatus[request.id] ? "cursor-not-allowed" : ""
+                    }`}
+                    disabled={!!responseStatus[request.id]} // Disable button if status already set
                   >
                     Approve
                   </button>
                   <button
                     onClick={() => handleResponse(request.id, "Cancelled")}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition"
+                    className={`px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition ${
+                      responseStatus[request.id] ? "cursor-not-allowed" : ""
+                    }`}
+                    disabled={!!responseStatus[request.id]} // Disable button if status already set
                   >
                     Cancel
                   </button>

@@ -7,6 +7,7 @@ export default {
         primary: "#0077B5",
         secondary: "#F3F2EF",
         "primary-dark": "#005885",
+        linkedin: '#0077B5',
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

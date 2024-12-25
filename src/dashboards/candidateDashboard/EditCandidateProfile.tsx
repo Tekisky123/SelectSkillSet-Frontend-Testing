@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import axiosInstance from "../../components/common/axiosConfig";
-import { countryData } from "../../components/common/countryData"; 
+import { countryData } from "../../components/common/countryData";
 
 const EditCandidateProfile = () => {
   const navigate = useNavigate();
@@ -40,13 +40,16 @@ const EditCandidateProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profileResponse = await axiosInstance.get("/candidate/getProfile");
+        const profileResponse = await axiosInstance.get(
+          "/candidate/getProfile"
+        );
         setProfile(profileResponse.data.profile);
 
-        // Use countryData directly to set countryCodes
         setCountryCodes(countryData);
       } catch (error) {
-        toast.error("Failed to load profile or country codes. Please try again later.");
+        toast.error(
+          "Failed to load profile or country codes. Please try again later."
+        );
       }
     };
 
@@ -118,7 +121,7 @@ const EditCandidateProfile = () => {
     setProfile({ ...profile, profilePhoto: "" });
     setIsPhotoFromGallery(false);
     toast.success("Profile photo removed.");
-    setShowPhotoOptions(false); 
+    setShowPhotoOptions(false);
   };
 
   return (
@@ -151,71 +154,13 @@ const EditCandidateProfile = () => {
           </button>
         </div>
 
-        {/* Photo Options Modal */}
-        {showPhotoOptions && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-96">
-              <h3 className="text-xl font-semibold mb-4">
-                Change Profile Photo
-              </h3>
-              <div className="space-y-4">
-                {/* Upload from Device */}
-                {!isPhotoFromGallery && (
-                  <div className="flex items-center gap-4">
-                    <label className="w-1/3 text-gray-700">
-                      Upload from Device
-                    </label>
-                    <input
-                      type="file"
-                      className="w-2/3"
-                      onChange={handleUploadPhoto}
-                    />
-                  </div>
-                )}
-                {/* Enter URL */}
-                {!isPhotoFromGallery && (
-                  <div className="flex items-center gap-4">
-                    <label className="w-1/3 text-gray-700">Enter URL</label>
-                    <input
-                      type="text"
-                      value={photoUrl}
-                      onChange={(e) => setPhotoUrl(e.target.value)}
-                      className="w-2/3 p-2 border border-gray-300 rounded-lg"
-                      placeholder="Profile Photo URL"
-                    />
-                  </div>
-                )}
-                {/* Remove and Save */}
-                <div className="flex justify-between space-x-4 mt-6">
-                  <button
-                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                    onClick={() => setShowPhotoOptions(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="bg-red-600 text-white py-2 px-4 rounded-lg"
-                    onClick={handleRemovePhoto}
-                  >
-                    Remove Profile
-                  </button>
-                  <button
-                    className="bg-blue-600 text-white py-2 px-4 rounded-lg"
-                    onClick={handlePhotoUrlSubmit}
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Form Fields */}
         <div className="space-y-6">
           {allowedUpdates.map(
             (field) =>
-              field !== "profilePhoto" && field !== "countryCode" && (
+              field !== "profilePhoto" &&
+              field !== "countryCode" &&
+              field !== "mobile" && (
                 <div key={field} className="flex flex-col gap-2">
                   <label className="font-medium text-gray-700 capitalize">
                     {field.replace(/([A-Z])/g, " $1")}
@@ -232,25 +177,41 @@ const EditCandidateProfile = () => {
                 </div>
               )
           )}
-          {/* Country Code Dropdown */}
-          <div className="flex flex-col gap-2">
-            <label className="font-medium text-gray-700 capitalize">
-              Country Code
-            </label>
-            <select
-              value={profile.countryCode || ""}
-              onChange={(e) =>
-                setProfile({ ...profile, countryCode: e.target.value })
-              }
-              className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select Country Code</option>
-              {countryCodes.map((code) => (
-                <option key={code.isoCode} value={code.code}>
-                  {code.name} ({code.code})
-                </option>
-              ))}
-            </select>
+          {/* Country Code and Mobile Number */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col gap-2 w-full sm:w-1/3">
+              <label className="font-medium text-gray-700 capitalize">
+                Country Code
+              </label>
+              <select
+                value={profile.countryCode || ""}
+                onChange={(e) =>
+                  setProfile({ ...profile, countryCode: e.target.value })
+                }
+                className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Country Code</option>
+                {countryCodes.map((code) => (
+                  <option key={code.isoCode} value={code.code}>
+                    {code.name} ({code.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-2 w-full sm:w-2/3">
+              <label className="font-medium text-gray-700 capitalize">
+                Mobile Number
+              </label>
+              <input
+                type="text"
+                value={profile.mobile || ""}
+                onChange={(e) =>
+                  setProfile({ ...profile, mobile: e.target.value })
+                }
+                className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter Mobile Number"
+              />
+            </div>
           </div>
         </div>
 

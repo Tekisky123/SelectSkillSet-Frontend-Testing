@@ -47,55 +47,53 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 left-0 w-full z-50 border-b border-gray-200">
-      <div className=" mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className="bg-white shadow-lg sticky top-0 left-0 w-full z-50 ">
+      <div className="mx-auto px-6 sm:px-8 lg:px-10">
+        <div className="flex justify-between items-center h-20">
           {/* Logo on the left */}
-          <div className="flex items-center space-x-3">
-            <Link to="/" className="flex items-center">
-              <span className="text-[#0077B5] text-3xl font-bold tracking-wider uppercase">
-                Selectskillset
-              </span>
+          <div className="flex items-center space-x-4">
+            <Link to="/" className="text-linkedin text-3xl font-extrabold uppercase">
+              Selectskillset
             </Link>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6 ml-auto">
+          <div className="hidden md:flex items-center space-x-8 ml-auto">
             {!userLoggedIn ? (
               <>
                 <Link
                   to="/"
-                  className="text-gray-800 hover:text-[#0077B5] transition duration-300"
+                  className="text-gray-800 hover:text-linkedin text-lg font-medium transition duration-300"
                 >
                   Home
                 </Link>
                 <Link
                   to="/products"
-                  className="text-gray-800 hover:text-[#0077B5] transition duration-300"
+                  className="text-gray-800 hover:text-linkedin text-lg font-medium transition duration-300"
                 >
                   Products
                 </Link>
                 <Link
                   to="/about"
-                  className="text-gray-800 hover:text-[#0077B5] transition duration-300"
+                  className="text-gray-800 hover:text-linkedin text-lg font-medium transition duration-300"
                 >
                   About Us
                 </Link>
                 <Link
                   to="/become-interviewer"
-                  className="text-gray-800 hover:text-[#0077B5] transition duration-300"
+                  className="text-gray-800 hover:text-linkedin text-lg font-medium transition duration-300"
                 >
                   Become an Interviewer
                 </Link>
                 <Link
                   to="/login"
-                  className="text-gray-800 hover:text-[#0077B5] font-medium transition duration-300"
+                  className="text-gray-800 hover:text-linkedin font-medium text-lg transition duration-300"
                 >
                   Login
                 </Link>
                 <Link
                   to="/request-demo"
-                  className="bg-[#0077B5] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#005f8d] transition duration-300"
+                  className="bg-linkedin text-white text-lg font-semibold px-5 py-3 rounded-lg shadow-lg hover:bg-blue-500 transition duration-300"
                 >
                   Request Demo
                 </Link>
@@ -104,13 +102,13 @@ export const Navbar = () => {
               <>
                 <button
                   onClick={handleProfileNavigation}
-                  className="bg-[#0077B5] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#005f8d] font-medium transition duration-300"
+                  className="bg-linkedin text-white text-lg font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-blue-500 transition duration-300"
                 >
                   Dashboard
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-700 font-medium transition duration-300"
+                  className="bg-red-600 text-white text-lg font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-red-500 transition duration-300"
                 >
                   Logout
                 </button>
@@ -125,9 +123,9 @@ export const Navbar = () => {
               className="text-gray-800 focus:outline-none"
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-7 h-7" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-7 h-7" />
               )}
             </button>
           </div>
@@ -137,59 +135,59 @@ export const Navbar = () => {
       {/* Mobile Menu */}
       <div
         ref={menuRef}
-        className={`md:hidden fixed top-0 right-0 h-screen bg-white shadow-lg z-40 w-3/4 transform ${
+        className={`md:hidden fixed top-0 right-0 h-screen bg-white shadow-xl z-50 w-3/4 transform ${
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out`}
       >
-        <div className="flex justify-end p-4">
+        <div className="flex justify-end p-5">
           <button
             onClick={closeMenu}
             className="text-gray-800 focus:outline-none"
           >
-            <X className="w-6 h-6" />
+            <X className="w-7 h-7" />
           </button>
         </div>
-        <div className="flex flex-col items-center space-y-6 mt-10">
+        <div className="flex flex-col items-center space-y-8 mt-12">
           {!userLoggedIn ? (
             <>
               <Link
                 to="/"
-                className="text-gray-800 hover:text-[#0077B5] text-lg transition duration-300"
+                className="text-gray-800 hover:text-linkedin text-2xl font-medium transition duration-300"
                 onClick={closeMenu}
               >
                 Home
               </Link>
               <Link
                 to="/products"
-                className="text-gray-800 hover:text-[#0077B5] text-lg transition duration-300"
+                className="text-gray-800 hover:text-linkedin text-2xl font-medium transition duration-300"
                 onClick={closeMenu}
               >
                 Products
               </Link>
               <Link
                 to="/about"
-                className="text-gray-800 hover:text-[#0077B5] text-lg transition duration-300"
+                className="text-gray-800 hover:text-linkedin text-2xl font-medium transition duration-300"
                 onClick={closeMenu}
               >
                 About Us
               </Link>
               <Link
                 to="/become-interviewer"
-                className="text-gray-800 hover:text-[#0077B5] text-lg transition duration-300"
+                className="text-gray-800 hover:text-linkedin text-2xl font-medium transition duration-300"
                 onClick={closeMenu}
               >
                 Become an Interviewer
               </Link>
               <Link
                 to="/login"
-                className="text-[#0077B5] font-medium text-lg transition duration-300"
+                className="text-yellow-600 font-medium text-2xl transition duration-300"
                 onClick={closeMenu}
               >
                 Login
               </Link>
               <Link
                 to="/request-demo"
-                className="bg-[#0077B5] text-white px-6 py-2 rounded-lg shadow-md hover:bg-[#005f8d] text-lg transition duration-300"
+                className="bg-linkedin text-white text-2xl font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-blue-500 transition duration-300"
                 onClick={closeMenu}
               >
                 Request Demo
@@ -202,7 +200,7 @@ export const Navbar = () => {
                   closeMenu();
                   handleProfileNavigation();
                 }}
-                className="bg-[#0077B5] text-white px-6 py-2 rounded-lg shadow-md hover:bg-[#005f8d] text-lg transition duration-300"
+                className="bg-linkedin text-white text-2xl font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-blue-500 transition duration-300"
               >
                 Dashboard
               </button>
@@ -211,7 +209,7 @@ export const Navbar = () => {
                   closeMenu();
                   handleLogout();
                 }}
-                className="bg-red-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-red-700 text-lg transition duration-300"
+                className="bg-red-600 text-white text-2xl font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-red-500 transition duration-300"
               >
                 Logout
               </button>

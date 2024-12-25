@@ -4,9 +4,6 @@
 
 /* @import './styles/animations.css'; */
 
-
-
-
 body {
   --sb-track-color: transparent;
   --sb-thumb-color: #0077b5;
@@ -14,7 +11,7 @@ body {
 }
 
 body::-webkit-scrollbar {
-  width: var(--sb-size)
+  width: var(--sb-size);
 }
 
 body::-webkit-scrollbar-track {
@@ -25,13 +22,11 @@ body::-webkit-scrollbar-track {
 body::-webkit-scrollbar-thumb {
   background: var(--sb-thumb-color);
   border-radius: 1px;
-  
 }
 
 @supports not selector(::-webkit-scrollbar) {
   body {
-    scrollbar-color: var(--sb-thumb-color)
-                     var(--sb-track-color);
+    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
   }
 }
 
@@ -69,23 +64,20 @@ body::-webkit-scrollbar-thumb {
 
 @layer utilities {
   .bg-grid-pattern {
-    background-image: linear-gradient(#0077B5 1px, transparent 1px),
-      linear-gradient(to right, #0077B5 1px, transparent 1px);
+    background-image: linear-gradient(#0077b5 1px, transparent 1px),
+      linear-gradient(to right, #0077b5 1px, transparent 1px);
     background-size: 40px 40px;
     opacity: 0.1;
   }
 }
 
-
-
 input[type="number"] {
-  -moz-appearance: textfield !important; 
- overflow: hidden;
+  -moz-appearance: textfield !important;
+  overflow: hidden;
   -webkit-appearance: none !important;
-  appearance: none !important; 
-  padding-right: 0 !important; 
+  appearance: none !important;
+  padding-right: 0 !important;
 }
-
 
 .highlight-selected-date {
   background-color: green !important;
@@ -95,6 +87,68 @@ input[type="number"] {
 .highlight-available-date {
   background-color: red !important;
   color: white !important;
-  pointer-events: none; 
+  pointer-events: none;
+}
+/* Input group layout */
+.react-time-picker__inputGroup {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  width: 100%;
 }
 
+/* Style for the individual input field */
+.react-time-picker__inputGroup__input {
+  width: 100% !important; /* Ensure full width */
+  padding: 0.75rem 1rem; /* Padding for input spacing */
+  font-size: 1rem; /* Set font size */
+  border: 2px solid #d1d5db; /* Gray border */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #fff; /* White background */
+  color: #333; /* Text color */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Focused input field appearance */
+.react-time-picker__inputGroup__input:focus {
+  border-color: #3b82f6; /* Blue border */
+  outline: none;
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); /* Blue shadow */
+}
+
+/* Label styling */
+.react-time-picker__label {
+  font-size: 0.875rem; /* Smaller font size */
+  color: #4b5563; /* Dark gray color */
+  margin-bottom: 0.5rem; /* Margin between label and input */
+  font-weight: 600; /* Bold label */
+}
+
+/* Hover effect for better interactivity */
+.react-time-picker__inputGroup__input:hover {
+  border-color: #60a5fa; /* Light blue border on hover */
+}
+
+/* Responsiveness: Small to Medium Screens */
+@media (max-width: 768px) {
+  .react-time-picker__inputGroup {
+    flex-direction: column; /* Stack inputs on small screens */
+    gap: 15px; /* Increase space between inputs */
+  }
+
+  .react-time-picker__inputGroup__input {
+    font-size: 0.875rem; /* Smaller font size */
+  }
+}
+
+/* Responsiveness: Large Screens */
+@media (min-width: 1024px) {
+  .react-time-picker__inputGroup {
+    flex-direction: row; /* Side by side on large screens */
+  }
+}
+
+.react-time-picker__button {
+  display: none !important;
+}
