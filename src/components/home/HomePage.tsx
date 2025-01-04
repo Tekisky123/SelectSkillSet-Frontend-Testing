@@ -10,7 +10,7 @@ export const HomePage = () => {
   return (
     <div className="bg-[#F3F2EF]">
       <Hero />
-      <LandingFeature />
+      {/*<LandingFeature />*/}
       <SliderCards />
       <Features />
       {/* <Statistics /> */}
