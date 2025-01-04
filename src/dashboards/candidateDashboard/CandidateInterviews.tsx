@@ -4,6 +4,7 @@ import axiosInstance from "../../components/common/axiosConfig";
 import profile from "../../images/interviewerProfile.png";
 import toast from "react-hot-toast";
 import { playSound } from "../../components/common/soundEffect";
+import { Link } from "react-router-dom";
 
 interface AvailabilityDate {
   _id: string;
@@ -128,7 +129,7 @@ const CandidateInterviews = () => {
   }
 
   return (
-    <div className="bg-gray-50 shadow rounded-lg p-8 max-w-6xl mx-auto">
+    <div className="bg-white shadow-lg rounded-lg p-8 max-w-6xl mx-auto">
       <h2 className="text-4xl font-semibold text-blue-600 mb-8 text-center">
         Schedule an Interview
       </h2>
@@ -140,28 +141,28 @@ const CandidateInterviews = () => {
           {paginatedInterviewers.map((interviewer) => (
             <div
               key={interviewer._id}
-              className="p-6 rounded-lg shadow-md border bg-white flex flex-col md:flex-row items-center gap-6 transition hover:shadow-lg"
+              className="p-6 rounded-lg shadow-lg border bg-white flex flex-col md:flex-row  gap-6 transition-all duration-300 hover:shadow-xl"
             >
               <img
                 src={interviewer.profilePhoto || profile}
                 alt={interviewer.firstName}
-                className="w-24 h-24 rounded-full object-cover border border-gray-300 shadow-sm"
+                className="w-24 h-24 rounded-full object-cover border-2 border-blue-500 shadow-md"
               />
-              <div className="flex-1 space-y-3">
-                <h3 className="text-2xl font-bold text-blue-600">
+              <div className="flex-1 space-y-4">
+                <h3 className="text-2xl font-bold text-blue-700">
                   {interviewer.firstName}
                 </h3>
-                <p className="text-gray-700">{interviewer.jobTitle}</p>
+                <p className="text-gray-600">{interviewer.jobTitle}</p>
                 {interviewer.experience && (
-                  <p className="text-gray-600">
-                    Experience: <span>{interviewer.experience}</span> years
+                  <p className="text-gray-500">
+                    Experience: <span>{interviewer.experience}</span>
                   </p>
                 )}
                 {interviewer.price && (
-                  <p className="text-gray-600">
+                  <p className="text-gray-500">
                     Pricing:{" "}
-                    <span className="text-green-500 font-semibold">
-                      ${interviewer.price}
+                    <span className="text-green-600 font-semibold">
+                      {interviewer.price}
                     </span>
                   </p>
                 )}
@@ -169,16 +170,16 @@ const CandidateInterviews = () => {
                   <h4 className="text-lg text-gray-800 font-semibold">
                     Available Dates:
                   </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {interviewer.availability.dates
                       .slice(0, viewMore[interviewer._id] ? undefined : 4)
                       .map((date) => (
                         <div
                           key={date._id}
-                          className="p-3 rounded border shadow-sm bg-gray-100"
+                          className="p-4 rounded-lg shadow-md bg-gray-50 hover:bg-gray-100 transition duration-200"
                         >
                           <Calendar className="text-blue-500" />
-                          <span className="block text-sm text-gray-700">
+                          <span className="block text-sm text-gray-700 mt-1">
                             {new Date(date.date).toLocaleDateString("en-GB")}
                           </span>
                           <div className="text-xs text-gray-500">
@@ -194,7 +195,7 @@ const CandidateInterviews = () => {
                                 date.to
                               )
                             }
-                            className="mt-2 text-xs px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            className="mt-2 text-xs px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200"
                           >
                             Book Slot
                           </button>
@@ -204,13 +205,19 @@ const CandidateInterviews = () => {
                   {interviewer.availability.dates.length > 4 && (
                     <button
                       onClick={() => toggleViewMore(interviewer._id)}
-                      className="mt-3 text-blue-500 text-sm hover:underline"
+                      className="mt-3 text-blue-600 text-sm font-semibold hover:underline transition duration-200"
                     >
                       {viewMore[interviewer._id] ? "View Less" : "View More"}
                     </button>
                   )}
                 </div>
               </div>
+              <Link
+                to={`/interviewer-profile/${interviewer._id}`}
+                className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium underline"
+              >
+                View Profile
+              </Link>
             </div>
           ))}
         </div>
@@ -221,7 +228,7 @@ const CandidateInterviews = () => {
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => prev - 1)}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
           >
             Previous
           </button>
@@ -231,7 +238,7 @@ const CandidateInterviews = () => {
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
           >
             Next
           </button>
@@ -240,59 +247,35 @@ const CandidateInterviews = () => {
 
       {modalVisible && selectedSlot && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h3 className="text-2xl font-semibold text-blue-600">
-              Confirm Interview
+          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+            <h3 className="text-2xl font-semibold text-blue-600 mb-4">
+              Confirm Interview Slot
             </h3>
-            <p className="mt-3">
-              <strong>Interviewer:</strong>{" "}
-              {
-                interviewers.find((i) => i._id === selectedSlot.interviewerId)
-                  ?.firstName
-              }
-            </p>
-            <p>
-              <strong>Price:</strong> $
-              {
-                interviewers.find((i) => i._id === selectedSlot.interviewerId)
-                  ?.price
-              }
-            </p>
-            <p>
-              <strong>Date:</strong>{" "}
-              {new Date(selectedSlot.date).toLocaleDateString("en-GB")}
-            </p>
-            <p>
-              <strong>Time:</strong>{" "}
-              {
-                interviewers
-                  .find((i) => i._id === selectedSlot.interviewerId)
-                  ?.availability.dates.find(
-                    (d) => d._id === selectedSlot.dateId
-                  )?.from
-              }{" "}
-              -{" "}
-              {
-                interviewers
-                  .find((i) => i._id === selectedSlot.interviewerId)
-                  ?.availability.dates.find(
-                    (d) => d._id === selectedSlot.dateId
-                  )?.to
-              }{" "}
-              GMT
-            </p>
-            <div className="flex justify-end mt-4 space-x-3">
-              <button
-                onClick={handleRequestInterview}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Confirm
-              </button>
+            <div className="mt-4">
+              <p>
+                <strong>Interviewer:</strong>{" "}
+                {
+                  interviewers.find((i) => i._id === selectedSlot.interviewerId)
+                    ?.firstName
+                }
+              </p>
+              <p>
+                <strong>Slot:</strong> {selectedSlot.date} | {selectedSlot.from}{" "}
+                - {selectedSlot.to}
+              </p>
+            </div>
+            <div className="mt-6 flex justify-end gap-6">
               <button
                 onClick={() => setModalVisible(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-200"
               >
                 Cancel
+              </button>
+              <button
+                onClick={handleRequestInterview}
+                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200"
+              >
+                Confirm
               </button>
             </div>
           </div>

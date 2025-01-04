@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import axiosInstance from "../../components/common/axiosConfig";
+import Loader from "../../components/ui/Loader"; // Ensure Loader is implemented properly
 
 interface InterviewRequest {
   id: string;
-  candidateName: string;
-  profilePhoto: string;
+  name: string;
+  profilePhoto: string | null;
   position: string;
   date: string;
   day: string;
@@ -14,16 +15,12 @@ interface InterviewRequest {
 
 const InterviewRequests: React.FC = () => {
   const [requests, setRequests] = useState<InterviewRequest[]>([]);
-  const [responseStatus, setResponseStatus] = useState<Record<string, string>>(
-    () => {
-      // Load saved statuses from sessionStorage on initial load
-      const savedStatus = sessionStorage.getItem("interviewStatus");
-      return savedStatus ? JSON.parse(savedStatus) : {};
-    }
-  );
+  const [isLoading, setIsLoading] = useState(true); // Track loading state for API call
+  const [actionLoading, setActionLoading] = useState<string | null>(null); // Track loading for action buttons
 
   useEffect(() => {
     const fetchRequests = async () => {
+      setIsLoading(true);
       try {
         const response = await axiosInstance.get(
           "/interviewer/getInterviewRequests"
@@ -38,6 +35,8 @@ const InterviewRequests: React.FC = () => {
         }
       } catch (error) {
         console.error("Error fetching interview requests:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -48,6 +47,7 @@ const InterviewRequests: React.FC = () => {
     id: string,
     action: "Approved" | "Cancelled"
   ) => {
+    setActionLoading(id); // Set the button loading state
     try {
       const payload = {
         interviewRequestId: id,
@@ -55,8 +55,17 @@ const InterviewRequests: React.FC = () => {
       };
 
       await axiosInstance.put("/interviewer/updateInterviewRequest", payload);
+
+      // Update the specific request's status in the state
+      setRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.id === id ? { ...request, status: action } : request
+        )
+      );
     } catch (error) {
       console.error("Error handling response for request:", error);
+    } finally {
+      setActionLoading(null); // Reset button loading state
     }
   };
 
@@ -71,7 +80,11 @@ const InterviewRequests: React.FC = () => {
       <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
         Interview Requests
       </h2>
-      {requests.length > 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader /> {/* Loader component when loading */}
+        </div>
+      ) : requests.length > 0 ? (
         <div className="space-y-6">
           {requests.map((request) => (
             <div
@@ -80,14 +93,17 @@ const InterviewRequests: React.FC = () => {
             >
               <div className="flex-shrink-0">
                 <img
-                  src={request.profilePhoto}
-                  alt={`${request.candidateName} profile`}
+                  src={
+                    request.profilePhoto ??
+                    "https://via.placeholder.com/150?text=No+Image"
+                  }
+                  alt={`${request.name} profile`}
                   className="w-16 h-16 rounded-full object-cover border-2 border-gray-300"
                 />
               </div>
               <div className="ml-4 flex-grow">
                 <h3 className="text-lg font-semibold text-gray-800">
-                  {request.candidateName}
+                  {request.name}
                 </h3>
                 <p className="text-sm text-gray-600">
                   Position: {request.position}
@@ -96,35 +112,40 @@ const InterviewRequests: React.FC = () => {
                   Date: <strong>{request.date}</strong> ({request.day})
                 </p>
               </div>
-              {responseStatus[request.id] ? (
-                <span
-                  className={`px-4 py-1 rounded-full text-sm font-medium ${
-                    responseStatus[request.id] === "Approved"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {responseStatus[request.id]}
-                </span>
-              ) : (
-                <div className="flex space-x-3">
+              <span
+                className={`px-4 py-1 rounded-full text-sm font-medium ${
+                  request.status === "Approved"
+                    ? "bg-green-100 text-green-700"
+                    : request.status === "Cancelled"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {request.status}
+              </span>
+              {request.status === "Requested" && (
+                <div className="flex space-x-3 ml-4">
                   <button
                     onClick={() => handleResponse(request.id, "Approved")}
                     className={`px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition ${
-                      responseStatus[request.id] ? "cursor-not-allowed" : ""
+                      actionLoading === request.id
+                        ? "opacity-50 cursor-wait"
+                        : ""
                     }`}
-                    disabled={!!responseStatus[request.id]} // Disable button if status already set
+                    disabled={actionLoading === request.id}
                   >
-                    Approve
+                    {actionLoading === request.id ? "Processing..." : "Approve"}
                   </button>
                   <button
                     onClick={() => handleResponse(request.id, "Cancelled")}
                     className={`px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition ${
-                      responseStatus[request.id] ? "cursor-not-allowed" : ""
+                      actionLoading === request.id
+                        ? "opacity-50 cursor-wait"
+                        : ""
                     }`}
-                    disabled={!!responseStatus[request.id]} // Disable button if status already set
+                    disabled={actionLoading === request.id}
                   >
-                    Cancel
+                    {actionLoading === request.id ? "Processing..." : "Cancel"}
                   </button>
                 </div>
               )}

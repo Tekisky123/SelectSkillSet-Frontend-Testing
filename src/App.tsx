@@ -16,6 +16,9 @@ import { InterviewerSignup } from "./components/auth/Interviewer/InterviewerSign
 import InterviewerDashboard from "./dashboards/InterviewerDashboard/InterviewerDashboard";
 import EditInterviewerProfile from "./dashboards/InterviewerDashboard/EditInterviewerProfile";
 import { VerifyOtp } from "./components/auth/VerifyOtp";
+import AboutUsPage from "./pages/about/AboutUsPage";
+import InterviewerProfile from "./pages/profile/InterviewerProfile";
+import InterviewEvaluationForm from "./dashboards/InterviewerDashboard/InterviewEvaluationForm";
 
 function App() {
   return (
@@ -25,13 +28,21 @@ function App() {
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutUsPage />} />
+          <Route
+            path="/interviewer-profile/:id"
+            element={<InterviewerProfile />}
+          />
+          <Route
+            path="/interviewer-feedback/:candidateId/:interviewRequestId"
+            element={<InterviewEvaluationForm />}
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/candidate-login" element={<CandidateLogin />} />
           <Route path="/candidate-signup" element={<CandidateSignup />} />
           <Route path="/candidate-dashboard" element={<CandidateDashboard />} />
           <Route path="/corporate-login" element={<CorporateLogin />} />
           <Route path="/corporate-signup" element={<CorporateSignup />} />
-
           <Route
             path="/interviewer-dashboard"
             element={<InterviewerDashboard />}

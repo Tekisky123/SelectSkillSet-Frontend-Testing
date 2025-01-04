@@ -51,7 +51,8 @@ export const CandidateLogin = () => {
     } catch (error: any) {
       setIsLoading(false);
       const errorMessage =
-        error.response?.data?.message || "An error occurred, please try again later";
+        error.response?.data?.message ||
+        "An error occurred, please try again later";
       toast.error(errorMessage);
     }
   };

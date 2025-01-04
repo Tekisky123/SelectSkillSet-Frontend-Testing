@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Edit2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import axiosInstance from "../../components/common/axiosConfig";
-import { countryData } from "../../components/common/countryData"; // Import countryData
+import { countryData } from "../../components/common/countryData";
+import { skillsData } from "../../components/common/SkillsData";
 
 const EditInterviewerProfile = () => {
   const navigate = useNavigate();
@@ -19,7 +19,8 @@ const EditInterviewerProfile = () => {
     "profilePhoto",
     "experience",
     "price",
-    "countryCode", // Add countryCode to the list of allowed updates
+    "countryCode",
+    "skills",
   ];
 
   const [profile, setProfile] = useState({
@@ -31,38 +32,76 @@ const EditInterviewerProfile = () => {
     profilePhoto: "",
     experience: "",
     price: "",
-    countryCode: "", // Add countryCode to profile state
+    countryCode: "",
+    skills: [],
   });
 
-  const [photoUrl, setPhotoUrl] = useState("");
-  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
-
-  // State for the selected country
   const [selectedCountry, setSelectedCountry] = useState(countryData[0]);
+  const [skillInput, setSkillInput] = useState("");
+  const [suggestedSkills, setSuggestedSkills] = useState([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await axiosInstance.get("/interviewer/getProfile");
+        const profileData = response.data?.profile || {};
+
         setProfile({
-          ...response.data.profile,
-          countryCode: response.data.profile.countryCode || countryData[0].code, // Ensure countryCode is part of the profile
+          firstName: profileData.firstName || "",
+          lastName: profileData.lastName || "",
+          jobTitle: profileData.jobTitle || "",
+          location: profileData.location || "",
+          mobile: profileData.mobile || "",
+          profilePhoto: profileData.profilePhoto || "",
+          experience: profileData.experience,
+          price: profileData.price,
+          countryCode: profileData.countryCode || countryData[0].code,
+          skills: profileData.skills || [],
         });
+
         setSelectedCountry(
-          countryData.find(
-            (item) => item.code === response.data.profile.countryCode
-          ) || countryData[0]
+          countryData.find((item) => item.code === profileData.countryCode) ||
+            countryData[0]
         );
       } catch (error) {
         toast.error("Failed to load profile. Please try again later.");
       }
     };
+
     fetchProfile();
   }, [token]);
 
+  const handleSkillChange = (e) => {
+    const input = e.target.value;
+    setSkillInput(input);
+    if (input) {
+      setSuggestedSkills(
+        skillsData
+          .filter((skill) => skill.toLowerCase().includes(input.toLowerCase()))
+          .slice(0, 5)
+      );
+    } else {
+      setSuggestedSkills([]);
+    }
+  };
+
+  const handleAddSkill = (skill) => {
+    if (!profile.skills.includes(skill)) {
+      setProfile({ ...profile, skills: [...profile.skills, skill] });
+    }
+    setSkillInput("");
+    setSuggestedSkills([]);
+  };
+
+  const handleRemoveSkill = (skill) => {
+    setProfile({
+      ...profile,
+      skills: profile.skills.filter((s) => s !== skill),
+    });
+  };
+
   const handleSave = async () => {
     const mobileRegex = /^[0-9]{10,15}$/;
-    const priceRegex = /^[0-9]+(\.[0-9]{1,2})?$/;
 
     if (
       !profile.firstName ||
@@ -80,17 +119,11 @@ const EditInterviewerProfile = () => {
       return;
     }
 
-    if (!priceRegex.test(profile.price)) {
-      toast.error("Invalid price format.");
-      return;
-    }
-
     try {
       const updatedData = Object.fromEntries(
         Object.entries(profile).filter(([key]) => allowedUpdates.includes(key))
       );
 
-      // Ensure countryCode is included separately in the payload
       updatedData.countryCode = selectedCountry.code;
 
       const response = await axiosInstance.put(
@@ -111,44 +144,6 @@ const EditInterviewerProfile = () => {
     }
   };
 
-  const handleCountryChange = (e) => {
-    const countryCode = e.target.value;
-    const country = countryData.find((item) => item.code === countryCode);
-    setSelectedCountry(country || countryData[0]);
-  };
-
-  const handleMobileChange = (e) => {
-    const input = e.target.value;
-    const regex = new RegExp(`^[0-9]{1,${selectedCountry.maxLength}}$`);
-    if (regex.test(input)) {
-      setProfile({ ...profile, mobile: input });
-    }
-  };
-
-  const handleUploadPhoto = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfile({ ...profile, profilePhoto: URL.createObjectURL(file) });
-      toast.success("Profile photo uploaded successfully!");
-    }
-  };
-
-  const handlePhotoUrlSubmit = () => {
-    if (!photoUrl) {
-      toast.error("Please enter a valid photo URL.");
-      return;
-    }
-
-    setProfile({ ...profile, profilePhoto: photoUrl });
-    toast.success("Profile photo URL updated successfully!");
-    setPhotoUrl("");
-  };
-
-  const handleRemovePhoto = () => {
-    setProfile({ ...profile, profilePhoto: "" });
-    toast.success("Profile photo removed.");
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -162,137 +157,159 @@ const EditInterviewerProfile = () => {
           Edit Interviewer Profile
         </h2>
 
-        {/* Profile Photo */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-300 mb-4">
-            <img
-              src={profile.profilePhoto || "default-image.png"}
-              alt="Profile"
-              className="object-cover w-full h-full"
+        {/* First Name */}
+        <div className="mb-6">
+          <label className="font-medium text-gray-700">First Name</label>
+          <input
+            type="text"
+            value={profile.firstName}
+            onChange={(e) =>
+              setProfile({ ...profile, firstName: e.target.value })
+            }
+            className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+            placeholder="Enter your first name"
+          />
+        </div>
+
+        {/* Last Name */}
+        <div className="mb-6">
+          <label className="font-medium text-gray-700">Last Name</label>
+          <input
+            type="text"
+            value={profile.lastName}
+            onChange={(e) =>
+              setProfile({ ...profile, lastName: e.target.value })
+            }
+            className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+            placeholder="Enter your last name"
+          />
+        </div>
+
+        {/* Job Title */}
+        <div className="mb-6">
+          <label className="font-medium text-gray-700">Job Title</label>
+          <input
+            type="text"
+            value={profile.jobTitle}
+            onChange={(e) =>
+              setProfile({ ...profile, jobTitle: e.target.value })
+            }
+            className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+            placeholder="Enter your job title"
+          />
+        </div>
+
+        {/* Location */}
+        <div className="mb-6">
+          <label className="font-medium text-gray-700">Location</label>
+          <input
+            type="text"
+            value={profile.location}
+            onChange={(e) =>
+              setProfile({ ...profile, location: e.target.value })
+            }
+            className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+            placeholder="Enter your location"
+          />
+        </div>
+
+        {/* Mobile Number with Country Code */}
+        <div className="mb-6 flex items-center gap-2">
+          <div className="w-1/4">
+            <label className="font-medium text-gray-700">Country Code</label>
+            <input
+              type="text"
+              value={selectedCountry.code}
+              readOnly
+              className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
             />
           </div>
-          <button
-            className="relative bottom-36 left-10 bg-blue-600 text-white rounded-full p-2"
-            onClick={() => setShowPhotoOptions(true)}
-          >
-            <Edit2 className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Photo Options Modal */}
-        {showPhotoOptions && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-96">
-              <h3 className="text-xl font-semibold mb-4">
-                Change Profile Photo
-              </h3>
-              <div className="space-y-4">
-                {/* Upload from Device */}
-                <div className="flex items-center gap-4">
-                  <label className="w-1/3 text-gray-700">
-                    Upload from Device
-                  </label>
-                  <input
-                    type="file"
-                    className="w-2/3"
-                    onChange={handleUploadPhoto}
-                  />
-                </div>
-
-                {/* Enter URL */}
-                <div className="flex items-center gap-4">
-                  <label className="w-1/3 text-gray-700">Enter URL</label>
-                  <input
-                    type="text"
-                    value={photoUrl}
-                    onChange={(e) => setPhotoUrl(e.target.value)}
-                    className="w-2/3 p-2 border border-gray-300 rounded-lg"
-                    placeholder="Profile Photo URL"
-                  />
-                </div>
-
-                {/* Remove and Save */}
-                <div className="flex justify-between space-x-4 mt-6">
-                  <button
-                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                    onClick={() => setShowPhotoOptions(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="bg-red-600 text-white py-2 px-4 rounded-lg"
-                    onClick={handleRemovePhoto}
-                  >
-                    Remove Profile
-                  </button>
-                  <button
-                    className="bg-blue-600 text-white py-2 px-4 rounded-lg"
-                    onClick={handlePhotoUrlSubmit}
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div className="w-3/4">
+            <label className="font-medium text-gray-700">Mobile Number</label>
+            <input
+              type="text"
+              value={profile.mobile}
+              onChange={(e) =>
+                setProfile({ ...profile, mobile: e.target.value })
+              }
+              className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+              maxLength={selectedCountry.maxLength}
+              placeholder="Enter your mobile number"
+            />
           </div>
-        )}
-
-        {/* Form Fields */}
-        <div className="space-y-6">
-          {allowedUpdates.map(
-            (field) =>
-              field !== "profilePhoto" &&
-              field !== "countryCode" && (
-                <div key={field} className="flex flex-col gap-2">
-                  <label className="font-medium text-gray-700 capitalize">
-                    {field.replace(/([A-Z])/g, " $1")}
-                  </label>
-                  {field === "mobile" ? (
-                    <>
-                      {/* Country Code Dropdown */}
-                      <div className="space-y-6">
-                        <div className="flex flex-col sm:flex-row gap-4">
-                          <select
-                            value={selectedCountry.code}
-                            onChange={handleCountryChange}
-                            className="p-3 rounded-lg border border-gray-300"
-                          >
-                            {countryData.map((country) => (
-                              <option
-                                key={country.isoCode}
-                                value={country.code}
-                              >
-                                {country.code} {country.name}
-                              </option>
-                            ))}
-                          </select>
-                          <input
-                            type="text"
-                            value={profile.mobile || ""}
-                            onChange={handleMobileChange}
-                            className="p-3 flex-1 rounded-lg border border-gray-300"
-                            placeholder="Enter mobile number"
-                          />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <input
-                      type="text"
-                      value={profile[field] || ""}
-                      onChange={(e) =>
-                        setProfile({ ...profile, [field]: e.target.value })
-                      }
-                      className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder={`Enter ${field.replace(/([A-Z])/g, " $1")}`}
-                    />
-                  )}
-                </div>
-              )
-          )}
         </div>
 
-        {/* Save and Cancel Buttons */}
+        {/* Experience */}
+        <div className="mb-6 relative">
+          <label className="font-medium text-gray-700">Experience</label>
+          <input
+            type="text"
+            value={profile.experience}
+            onChange={(e) =>
+              setProfile({ ...profile, experience: e.target.value })
+            }
+            className="text-gray-800 p-4 pl-10 pr-16 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+            placeholder="Enter your experience in years"
+          />
+          <span className="absolute right-3 bottom-4 text-xl">years</span>
+        </div>
+
+        {/* Price */}
+        <div className="mb-6 relative">
+          <label className="font-medium text-gray-700">Price</label>
+          <input
+            type="text"
+            value={profile.price}
+            onChange={(e) =>
+              setProfile({ ...profile, price: e.target.value })
+            }
+            className="text-gray-800 p-4 pl-10 pr-16 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+            placeholder="Enter your price"
+          />
+          <span className="absolute right-3 bottom-3 text-2xl">$</span>
+        </div>
+
+        {/* Skills */}
+        <div className="mb-6">
+          <label className="font-medium text-gray-700">Skills</label>
+          <input
+            type="text"
+            value={skillInput}
+            onChange={handleSkillChange}
+            className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+            placeholder="Type to search and add skills"
+          />
+          {suggestedSkills.length > 0 && (
+            <div className="border border-gray-300 rounded-lg mt-2 bg-white shadow-md">
+              {suggestedSkills.map((skill, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleAddSkill(skill)}
+                  className="p-2 cursor-pointer hover:bg-gray-100"
+                >
+                  {skill}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2 mt-4">
+            {profile.skills.map((skill, index) => (
+              <span
+                key={index}
+                className="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg flex items-center"
+              >
+                {skill}
+                <button
+                  onClick={() => handleRemoveSkill(skill)}
+                  className="ml-2 text-red-500"
+                >
+                  x
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+
         <div className="flex space-x-4 mt-6">
           <button
             className="w-full sm:w-auto bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"

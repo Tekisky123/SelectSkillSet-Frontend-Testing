@@ -1,127 +1,127 @@
 import { useState, useEffect } from "react";
-import { Edit2 } from "lucide-react";
+import { XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import axiosInstance from "../../components/common/axiosConfig";
 import { countryData } from "../../components/common/countryData";
+import { skillsData } from "../../components/common/SkillsData";
 
 const EditCandidateProfile = () => {
   const navigate = useNavigate();
-  const token = sessionStorage.getItem("candidateToken");
-
-  const allowedUpdates = [
-    "firstName",
-    "lastName",
-    "jobTitle",
-    "location",
-    "countryCode",
-    "mobile",
-    "profilePhoto",
-    "linkedIn",
-  ];
 
   const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
     jobTitle: "",
     location: "",
-    countryCode: "",
-    mobile: "",
-    profilePhoto: "",
     linkedIn: "",
+    skills: [],
+    resume: null, // For new upload
   });
+  const [existingResume, setExistingResume] = useState(""); // Existing resume from database
+  const [skillInput, setSkillInput] = useState("");
+  const [suggestedSkills, setSuggestedSkills] = useState([]);
+  const [updatedFields, setUpdatedFields] = useState({}); // Track changes for partial updates
 
-  const [photoUrl, setPhotoUrl] = useState("");
-  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
-  const [isPhotoFromGallery, setIsPhotoFromGallery] = useState(false);
-  const [countryCodes, setCountryCodes] = useState([]);
-
+  // Fetch profile data
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profileResponse = await axiosInstance.get(
-          "/candidate/getProfile"
-        );
-        setProfile(profileResponse.data.profile);
+        const { data } = await axiosInstance.get("/candidate/getProfile");
+        const {
+          firstName = "",
+          lastName = "",
+          jobTitle = "",
+          location = "",
+          linkedIn = "",
+          skills = [],
+          resume = "",
+        } = data.profile;
 
-        setCountryCodes(countryData);
+        setProfile({
+          firstName,
+          lastName,
+          jobTitle,
+          location,
+          linkedIn,
+          skills,
+          resume: null,
+        });
+        setExistingResume(resume); // Store the existing resume name
       } catch (error) {
-        toast.error(
-          "Failed to load profile or country codes. Please try again later."
-        );
+        toast.error("Failed to load profile data. Please try again.");
       }
     };
 
     fetchProfile();
-  }, [token]);
+  }, []);
 
+  // Handle field changes
+  const handleProfileChange = (key, value) => {
+    setProfile((prev) => ({ ...prev, [key]: value }));
+    setUpdatedFields((prev) => ({ ...prev, [key]: value })); // Track changed fields
+  };
+
+  // Save changes (only send updated fields)
   const handleSave = async () => {
-    const mobileRegex = /^[0-9]{10,15}$/;
-
-    if (!profile.firstName || !profile.lastName || !profile.mobile) {
-      toast.error("All fields are required.");
-      return;
+    if (!profile.firstName || !profile.lastName) {
+      return toast.error("First name and last name are required.");
     }
 
-    if (!mobileRegex.test(profile.mobile)) {
-      toast.error("Invalid mobile number.");
-      return;
-    }
+    const formData = new FormData();
+    Object.entries(updatedFields).forEach(([key, value]) => {
+      if (key === "skills") {
+        formData.append(key, JSON.stringify(value)); // Handle skills as JSON
+      } else if (key === "resume" && value) {
+        formData.append(key, value); // Append resume if it exists
+      } else {
+        formData.append(key, value);
+      }
+    });
 
     try {
-      const updatedData = Object.fromEntries(
-        Object.entries(profile).filter(([key]) => allowedUpdates.includes(key))
-      );
-
-      await axiosInstance.put("/candidate/updateProfile", updatedData);
-
+      await axiosInstance.put("/candidate/updateProfile", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       toast.success("Profile updated successfully!");
       navigate("/candidate-dashboard");
-    } catch (error) {
+    } catch {
       toast.error("Failed to update profile. Please try again.");
     }
   };
 
-  const handleUploadPhoto = (e) => {
+  // Handle resume upload
+  const handleResumeUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProfile({ ...profile, profilePhoto: URL.createObjectURL(file) });
-      setIsPhotoFromGallery(true);
-      toast.success("Profile photo uploaded successfully!");
+      handleProfileChange("resume", file);
+      toast.success("Resume uploaded successfully!");
     }
   };
 
-  const handlePhotoUrlSubmit = () => {
-    if (!isPhotoFromGallery && !photoUrl) {
-      toast.error("Please enter a valid photo URL.");
-      return;
-    }
-
-    const urlRegex = /^(https?:\/\/[^\s$.?#].[^\s]*)$/i;
-    if (!isPhotoFromGallery && photoUrl && !urlRegex.test(photoUrl)) {
-      toast.error("Invalid URL format. Please enter a valid photo URL.");
-      return;
-    }
-
-    if (!isPhotoFromGallery) {
-      setProfile({ ...profile, profilePhoto: photoUrl });
-      toast.success("Profile photo URL updated successfully!");
-      setPhotoUrl("");
-    }
-
-    if (isPhotoFromGallery) {
-      toast.success("Profile photo uploaded successfully!");
-    }
-
-    setShowPhotoOptions(false);
+  // Handle skills input
+  const handleSkillInput = (value) => {
+    setSkillInput(value);
+    setSuggestedSkills(
+      skillsData.filter(
+        (skill) =>
+          skill.toLowerCase().includes(value.toLowerCase()) &&
+          !profile.skills.includes(skill)
+      )
+    );
   };
 
-  const handleRemovePhoto = () => {
-    setProfile({ ...profile, profilePhoto: "" });
-    setIsPhotoFromGallery(false);
-    toast.success("Profile photo removed.");
-    setShowPhotoOptions(false);
+  const handleAddSkill = (skill) => {
+    const updatedSkills = [...profile.skills, skill];
+    handleProfileChange("skills", updatedSkills);
+    setSkillInput("");
+    setSuggestedSkills([]);
+  };
+
+  const handleRemoveSkill = (skill) => {
+    const updatedSkills = profile.skills.filter((s) => s !== skill);
+    handleProfileChange("skills", updatedSkills);
   };
 
   return (
@@ -137,94 +137,95 @@ const EditCandidateProfile = () => {
           Edit Candidate Profile
         </h2>
 
-        {/* Profile Photo */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-300 mb-4">
-            <img
-              src={profile.profilePhoto || "default-image.png"}
-              alt="Profile"
-              className="object-cover w-full h-full"
-            />
-          </div>
-          <button
-            className="relative bottom-36 left-10 bg-blue-600 text-white rounded-full p-2"
-            onClick={() => setShowPhotoOptions(true)}
-          >
-            <Edit2 className="w-5 h-5" />
-          </button>
-        </div>
-
         {/* Form Fields */}
         <div className="space-y-6">
-          {allowedUpdates.map(
-            (field) =>
-              field !== "profilePhoto" &&
-              field !== "countryCode" &&
-              field !== "mobile" && (
-                <div key={field} className="flex flex-col gap-2">
-                  <label className="font-medium text-gray-700 capitalize">
-                    {field.replace(/([A-Z])/g, " $1")}
-                  </label>
-                  <input
-                    type="text"
-                    value={profile[field] || ""}
-                    onChange={(e) =>
-                      setProfile({ ...profile, [field]: e.target.value })
-                    }
-                    className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={`Enter ${field.replace(/([A-Z])/g, " $1")}`}
-                  />
-                </div>
-              )
+          {["firstName", "lastName", "jobTitle", "location", "linkedIn"].map(
+            (key) => (
+              <div key={key} className="flex flex-col gap-2">
+                <label className="font-medium text-gray-700 capitalize">
+                  {key.replace(/([A-Z])/g, " $1")}
+                </label>
+                <input
+                  type="text"
+                  value={profile[key]}
+                  onChange={(e) => handleProfileChange(key, e.target.value)}
+                  className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder={`Enter ${key.replace(/([A-Z])/g, " $1")}`}
+                />
+              </div>
+            )
           )}
-          {/* Country Code and Mobile Number */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex flex-col gap-2 w-full sm:w-1/3">
-              <label className="font-medium text-gray-700 capitalize">
-                Country Code
-              </label>
-              <select
-                value={profile.countryCode || ""}
-                onChange={(e) =>
-                  setProfile({ ...profile, countryCode: e.target.value })
-                }
-                className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Country Code</option>
-                {countryCodes.map((code) => (
-                  <option key={code.isoCode} value={code.code}>
-                    {code.name} ({code.code})
-                  </option>
+
+          {/* Skills Section */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-gray-700">Skills</label>
+            <input
+              type="text"
+              value={skillInput}
+              onChange={(e) => handleSkillInput(e.target.value)}
+              className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Start typing to add skills..."
+            />
+            {suggestedSkills.length > 0 && (
+              <ul className="bg-white border border-gray-300 rounded-lg mt-2 max-h-32 overflow-y-auto">
+                {suggestedSkills.map((skill) => (
+                  <li
+                    key={skill}
+                    className="px-4 py-2 cursor-pointer hover:bg-blue-100"
+                    onClick={() => handleAddSkill(skill)}
+                  >
+                    {skill}
+                  </li>
                 ))}
-              </select>
+              </ul>
+            )}
+            <div className="flex flex-wrap gap-2 mt-4">
+              {profile.skills.map((skill) => (
+                <span
+                  key={skill}
+                  className="bg-blue-600 text-white py-1 px-3 rounded-full flex items-center gap-2"
+                >
+                  {skill}
+                  <XCircle
+                    className="w-4 h-4 cursor-pointer"
+                    onClick={() => handleRemoveSkill(skill)}
+                  />
+                </span>
+              ))}
             </div>
-            <div className="flex flex-col gap-2 w-full sm:w-2/3">
-              <label className="font-medium text-gray-700 capitalize">
-                Mobile Number
-              </label>
-              <input
-                type="text"
-                value={profile.mobile || ""}
-                onChange={(e) =>
-                  setProfile({ ...profile, mobile: e.target.value })
-                }
-                className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter Mobile Number"
-              />
-            </div>
+          </div>
+
+          {/* Resume Section */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-gray-700">Upload Resume</label>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={handleResumeUpload}
+              className="text-gray-800 p-4 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {profile.resume ? (
+              <p className="text-sm text-green-600 mt-2">
+                {profile.resume.name} is uploaded.
+              </p>
+            ) : existingResume ? (
+              <p className="text-sm text-gray-700 mt-2">
+                Current Resume: {existingResume}
+              </p>
+            ) : null}
           </div>
         </div>
 
-        {/* Save and Cancel Buttons */}
+        {/* Action Buttons */}
         <div className="flex space-x-4 mt-6">
           <button
-            className="w-full sm:w-auto bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-auto bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-500"
             onClick={handleSave}
           >
             Save Changes
           </button>
           <button
-            className="w-full sm:w-auto bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="w-full sm:w-auto bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-400"
             onClick={() => navigate("/candidate-dashboard")}
           >
             Cancel

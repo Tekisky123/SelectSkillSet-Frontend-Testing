@@ -6,18 +6,18 @@ import CandidateFeedback from "./CandidateFeedback";
 import profileimg from "../../images/candidateProfile.png";
 import axiosInstance from "../../components/common/axiosConfig";
 import CandidateInterviews from "./CandidateInterviews";
+import Loader from "../../components/ui/Loader";
 
 const CandidateDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [interviews, setInterviews] = useState([]);
-  const [interviewsLoading, setInterviewsLoading] = useState(true);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfileData = async () => {
       const token = sessionStorage.getItem("candidateToken");
 
       if (!token) {
@@ -26,79 +26,49 @@ const CandidateDashboard = () => {
       }
 
       try {
-        const response = await axiosInstance.get("/candidate/getProfile");
+        const [profileResponse, interviewResponse] = await Promise.all([
+          axiosInstance.get("/candidate/getProfile"),
+          axiosInstance.get("/candidate/myInterviews"),
+        ]);
 
-        if (response.data?.success) {
-          const profileData = response.data.profile || {};
+        if (profileResponse.data?.success) {
+          const profileData = profileResponse.data.profile || {};
           setProfile({
             name: `${profileData.firstName || ""} ${
               profileData.lastName || ""
             }`.trim(),
             email: profileData.email || "Email not provided",
+            skills: profileData.skills || [],
             location: profileData.location || "Location not provided",
             mobile: profileData.mobile || "Mobile not provided",
             countryCode: profileData.countryCode || "+00",
             jobTitle: profileData.jobTitle || "Job title not provided",
             profilePhoto: profileData.profilePhoto || profileimg,
             linkedIn: profileData.linkedIn || "",
-            scheduledInterviews: profileData.scheduledInterviews || [],
-            completedInterviews:
-              profileData.statistics?.monthlyStatistics?.completedInterviews ||
-              0,
-            averageRating:
-              profileData.statistics?.monthlyStatistics?.averageRating || 0,
-            feedbackCount:
-              profileData.statistics?.monthlyStatistics?.feedbackCount || 0,
+            resume: profileData.resume || "",
             feedback: profileData.statistics?.feedbacks || [],
           });
         } else {
           setError("Failed to fetch profile data.");
         }
+
+        if (interviewResponse.data?.success) {
+          setInterviews(interviewResponse.data.interviews || []);
+        } else {
+          setError("Failed to fetch interviews.");
+        }
       } catch (err) {
-        console.error("Error fetching profile:", err);
-        setError("An error occurred while fetching the profile.");
+        console.error("Error fetching data:", err);
+        setError("An error occurred while fetching data.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    const fetchInterviews = async () => {
-      try {
-        const response = await axiosInstance.get("/candidate/myInterviews");
-        if (response.data?.success) {
-          setInterviews(response.data.interviews || []);
-        } else {
-          setError("Failed to fetch interviews data.");
-        }
-      } catch (err) {
-        console.error("Error fetching interviews:", err);
-        setError("An error occurred while fetching interviews.");
-      } finally {
-        setInterviewsLoading(false);
-      }
-    };
-
-    fetchProfile();
-    fetchInterviews();
+    fetchProfileData();
   }, [navigate]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg font-semibold text-gray-700">Loading...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500 text-lg">
-        {error}
-      </div>
-    );
-  }
-
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case "Approved":
         return "bg-green-100 text-green-600";
@@ -109,63 +79,88 @@ const CandidateDashboard = () => {
     }
   };
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500 text-lg font-semibold">{error}</p>
+      </div>
+    );
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8"
-    >
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-1 h-max bg-white shadow-lg rounded-lg p-6">
-            <div className="flex flex-col items-center">
-              <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-300 mb-4">
+    <>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3 }}
+          className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8"
+        >
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 ">
+            {/* Profile Card */}
+            <div className="md:col-span-1 bg-white shadow-lg rounded-lg p-6 h-min">
+              <div className="flex flex-col items-center">
                 <img
-                  src={profile.profilePhoto || profileimg}
+                  src={profile.profilePhoto}
                   alt="Profile"
-                  className="object-cover w-full h-full"
+                  className="w-32 h-32 rounded-full bg-gray-300 mb-4"
                 />
+                <h2 className="text-2xl font-semibold text-gray-800">
+                  {profile.name}
+                </h2>
+                <p className="text-sm text-gray-600">{profile.jobTitle}</p>
+                <button
+                  className="mt-4 flex items-center text-[#0077B5] hover:text-[#005885]"
+                  onClick={() => navigate("/edit-candidate-profile")}
+                >
+                  <Edit className="w-5 h-5 mr-2" />
+                  Edit Profile
+                </button>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-800 text-center">
-                {profile.name}
-              </h2>
-              <p className="text-sm text-gray-600 text-center">
-                {profile.jobTitle}
-              </p>
-              <button
-                className="mt-4 text-[#0077B5] hover:text-[#005885] flex items-center"
-                onClick={() => navigate("/edit-candidate-profile")}
-              >
-                <Edit className="w-5 h-5 mr-2" />
-                Edit Profile
-              </button>
+
+              <div className="mt-6 space-y-4">
+                <div className="flex items-center text-sm">
+                  <Phone className="w-5 h-5 mr-2" />
+                  {profile.countryCode} {profile.mobile}
+                </div>
+                <div className="flex items-center text-sm">
+                  <MapPin className="w-5 h-5 mr-2" />
+                  {profile.location}
+                </div>
+                <div className="flex items-center text-sm">
+                  <Briefcase className="w-5 h-5 mr-2" />
+                  {profile.jobTitle}
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-4">Skills</h3>
+                {profile.skills.length > 0 ? (
+                  <div className="flex flex-wrap gap-3">
+                    {profile.skills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No skills available.</p>
+                )}
+              </div>
             </div>
 
-            <div className="mt-6 space-y-4 text-gray-600">
-              <div className="flex items-center text-sm">
-                <Phone className="w-5 h-5 mr-2" />
-                {profile.countryCode} {profile.mobile}
-              </div>
-              <div className="flex items-center text-sm">
-                <MapPin className="w-5 h-5 mr-2" />
-                {profile.location}
-              </div>
-              <div className="flex items-center text-sm">
-                <Briefcase className="w-5 h-5 mr-2" />
-                {profile.jobTitle}
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="md:col-span-3 space-y-8">
-            {/* Profile Details */}
-            <div className="bg-white shadow-lg rounded-xl p-6">
-              <h2 className="text-xl font-semibold mb-6">Profile Details</h2>
-              <div className="space-y-4">
-                <table className="min-w-full table-auto border-separate border-spacing-2">
+            {/* Main Content */}
+            <div className="md:col-span-3 space-y-8">
+              {/* Profile Details */}
+              <div className="bg-white shadow-lg rounded-lg p-6">
+                <h3 className="text-xl font-semibold mb-6">Profile Details</h3>
+                <table className="w-full border-separate border-spacing-2">
                   <tbody>
                     {[
                       { label: "Full Name", value: profile.name },
@@ -183,7 +178,7 @@ const CandidateDashboard = () => {
                             target="_blank"
                             className="text-blue-500 hover:underline"
                           >
-                            {new URL(profile.linkedIn).pathname.slice(4)}
+                            LinkedIn Profile
                           </a>
                         ) : (
                           "Not Provided"
@@ -203,67 +198,55 @@ const CandidateDashboard = () => {
                         ),
                       },
                     ].map((item, index) => (
-                      <tr key={index} className="border-b border-gray-200">
-                        <td className="px-4 py-2 text-left font-medium text-gray-600">
+                      <tr key={index}>
+                        <td className="px-4 py-2 font-medium text-gray-600">
                           {item.label}
                         </td>
-                        <td className="px-4 py-2 text-left text-gray-700">
-                          {item.value}
-                        </td>
+                        <td className="px-4 py-2">{item.value}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
 
-            <div className="bg-white shadow-lg rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                My Upcoming Interviews
-              </h3>
-              {interviews.length > 0 ? (
-                interviews.map((interview) => (
-                  <div
-                    key={interview.id || Math.random()}
-                    className={`p-4 border rounded-lg flex items-center justify-between mb-4 shadow-md ${getStatusColor(
-                      interview.status
-                    )}`}
-                  >
-                    <div className="flex items-center">
-                      <img
-                        src={interview.interviewerPhoto || profileimg}
-                        alt={interview.interviewerName || "Interviewer"}
-                        className="w-12 h-12 rounded-full mr-4"
-                      />
+              <div className="bg-white shadow-lg rounded-lg p-6">
+                <h3 className="text-xl font-semibold mb-4">
+                  My Upcoming Interviews
+                </h3>
+                {interviews.length > 0 ? (
+                  interviews.map((interview, index) => (
+                    <div
+                      key={index}
+                      className={`p-4 border rounded-lg flex items-center justify-between mb-4 shadow-md ${getStatusColor(
+                        interview.status
+                      )}`}
+                    >
                       <div>
-                        <h3 className="font-medium text-gray-800">
+                        <h4 className="font-semibold text-gray-800">
                           {interview.interviewerName || "N/A"}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {interview.date || "TBD"}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {interview.from || "Time not specified"} -{" "}
-                          {interview.to || "Time not specified"} GMT
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {interview.date || "TBD"} | {interview.from || "N/A"}{" "}
+                          - {interview.to || "N/A"} GMT
                         </p>
                       </div>
+                      <span className="text-sm font-medium">
+                        {interview.status}
+                      </span>
                     </div>
-                    <div className="text-sm font-medium">
-                      {interview.status}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500">No scheduled interviews.</p>
-              )}
-            </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500">No scheduled interviews.</p>
+                )}
+              </div>
+              <CandidateInterviews />
 
-            <CandidateInterviews />
-            <CandidateFeedback feedbacks={profile.feedback} />
+              <CandidateFeedback feedbacks={profile.feedback} />
+            </div>
           </div>
-        </div>
-      </div>
-    </motion.div>
+        </motion.div>
+      )}
+    </>
   );
 };
 
