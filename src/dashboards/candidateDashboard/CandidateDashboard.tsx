@@ -7,6 +7,7 @@ import profileimg from "../../images/candidateProfile.png";
 import axiosInstance from "../../components/common/axiosConfig";
 import CandidateInterviews from "./CandidateInterviews";
 import Loader from "../../components/ui/Loader";
+import CandidateStatistics from "./CandidateStatistics";
 
 const CandidateDashboard = () => {
   const [profile, setProfile] = useState(null);
@@ -241,7 +242,7 @@ const CandidateDashboard = () => {
               </div>
               <CandidateInterviews />
 
-              <CandidateFeedback feedbacks={profile.feedback} />
+              <CandidateStatistics />
             </div>
           </div>
         </motion.div>

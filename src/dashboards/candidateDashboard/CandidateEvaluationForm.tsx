@@ -7,34 +7,32 @@ import { useNavigate, useParams } from "react-router-dom";
 import Loader from "../../components/ui/Loader";
 
 const steps = [
-  "Educational Background",
-  "Prior Work Experience",
-  "Technical Qualifications/Experience",
-  "Verbal Communication",
-  "Candidate Interest",
-  "Knowledge of Organization",
-  "Teambuilding/Interpersonal Skills",
-  "Initiative",
-  "Time Management",
-  "Customer Service",
-  "Overall Impression and Recommendation",
+  "Clarity of Communication",
+  "Professionalism",
+  "Knowledge of the Role",
+  "Engagement and Interest",
+  "Interview Structure",
+  "Timing",
+  "Opportunity to Ask Questions",
+  "Behavioral/Technical Questions",
+  "Feedback/Next Steps Communication",
+  "Overall Experience",
 ];
 
 const descriptions = [
-  "Does the candidate have the appropriate educational qualifications or training for this position?",
-  "Has the candidate acquired similar skills or qualifications through past work experiences?",
-  "Does the candidate have the technical skills necessary for this position?",
-  "How were the candidate’s communication skills during the interview?",
-  "How much interest did the candidate show in the position and the organization?",
-  "Did the candidate research the organization prior to the interview?",
-  "Did the candidate demonstrate good teambuilding/interpersonal skills?",
-  "Did the candidate demonstrate a high degree of initiative?",
-  "Did the candidate demonstrate good time management skills?",
-  "Did the candidate demonstrate a high level of customer service skills/abilities?",
-  "Summary of your perceptions of the candidate’s strengths/weaknesses. Final comments and recommendations.",
+  "How clear and concise were the interviewer's questions and instructions? Did they effectively communicate what they were looking for?",
+  "Was the interviewer polite, respectful, and professional throughout the interaction?",
+  "Did the interviewer have a good understanding of the job role and the expectations for the position?",
+  "Did the interviewer seem genuinely interested in your responses and engage in a meaningful conversation?",
+  "Was the interview organized with a clear structure, such as an introduction, questions, and a closing discussion? Did the process feel efficient?",
+  "Was the interview conducted within the expected time frame, or did it feel rushed/dragged on?",
+  "Did the interviewer provide ample opportunity for you to ask questions about the role, team, or company?",
+  "Were the questions relevant and fair, aligned with the role's requirements, and did they test your skills effectively?",
+  "Did the interviewer explain the next steps in the interview process and when you could expect feedback?",
+  "How would you rate the overall experience in terms of professionalism, fairness, and insight into the company or role?",
 ];
 
-const InterviewEvaluationForm: React.FC = () => {
+const CandidateEvaluationForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState(
     steps.reduce((acc, step) => {
@@ -45,8 +43,9 @@ const InterviewEvaluationForm: React.FC = () => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showPopup, setShowPopup] = useState(true);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Loading state
 
+  const { interviewerId, interviewRequestId } = useParams();
   const navigate = useNavigate();
 
   const handleNext = () => {
@@ -95,29 +94,29 @@ const InterviewEvaluationForm: React.FC = () => {
     }));
   };
 
-  const { candidateId, interviewRequestId } = useParams();
   const handleSubmit = async () => {
-    if (!candidateId || !interviewRequestId) {
-      toast.error("Invalid candidate or interview request ID.");
+    if (!interviewerId || !interviewRequestId) {
+      toast.error("Invalid candidate ID.");
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
+
     try {
-      await axiosInstance.post("/interviewer/add-candidate-feedback", {
-        candidateId,
+      await axiosInstance.post("/candidate/add-interviewer-feedback", {
+        interviewerId,
         interviewRequestId,
         feedback: formData,
       });
-      setLoading(false);
-      toast.success("Feedback submitted successfully!");
+      toast.success("Candidate feedback submitted successfully!");
       setShowConfirmModal(false);
       setTimeout(() => {
         navigate("/");
       }, 1000);
     } catch (error) {
-      setLoading(false);
-      toast.error(error.response?.data?.message || "An error occurred.");
+      toast.error(error.response?.data?.message || "Submission failed.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -131,7 +130,7 @@ const InterviewEvaluationForm: React.FC = () => {
 
   return (
     <>
-      {loading ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <>
@@ -153,13 +152,13 @@ const InterviewEvaluationForm: React.FC = () => {
               >
                 <div className="relative bg-white rounded-lg p-8 w-11/12 max-w-lg shadow-xl">
                   <h2 className="text-2xl font-semibold text-[#0a66c2] mb-4">
-                    Interview Evaluation Instructions
+                    Candidate Evaluation Instructions
                   </h2>
                   <p className="text-gray-600 mb-4 leading-relaxed">
-                    Interview evaluation forms are to be completed by the
-                    interviewer to rank the candidate’s overall qualifications
-                    for the position for which they have applied. Use the
-                    following scale for your evaluation:
+                    Candidate evaluation forms are to be completed by the
+                    candidate to rank the interviewer’s overall performance
+                    during the interview. Use the following scale for your
+                    evaluation:
                   </p>
                   <ul className="list-disc list-inside text-gray-700 space-y-2 mb-4">
                     <li>
@@ -188,10 +187,11 @@ const InterviewEvaluationForm: React.FC = () => {
                 </div>
               </div>
             )}
+
             <div className="bg-white w-full max-w-3xl shadow-xl rounded-lg overflow-hidden">
               <div className="p-6 relative">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-                  Interview Evaluation Form
+                  Candidate Evaluation Form
                 </h1>
                 <button
                   onClick={() => setShowPopup(true)}
@@ -200,6 +200,7 @@ const InterviewEvaluationForm: React.FC = () => {
                   <Info size={24} />
                 </button>
 
+                {/* Step Indicator */}
                 <div className="flex justify-center gap-2 overflow-x-auto mb-8">
                   {steps.map((_, index) => (
                     <div key={index} className="flex flex-col items-center">
@@ -280,6 +281,14 @@ const InterviewEvaluationForm: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Loader Spinner */}
+            {isLoading && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 border-solid border-current border-t-transparent rounded-full"></div>
+              </div>
+            )}
+
             {/* Confirmation Modal */}
             {showConfirmModal && (
               <div
@@ -327,4 +336,4 @@ const InterviewEvaluationForm: React.FC = () => {
   );
 };
 
-export default InterviewEvaluationForm;
+export default CandidateEvaluationForm;

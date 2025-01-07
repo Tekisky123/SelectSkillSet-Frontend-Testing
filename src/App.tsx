@@ -19,6 +19,7 @@ import { VerifyOtp } from "./components/auth/VerifyOtp";
 import AboutUsPage from "./pages/about/AboutUsPage";
 import InterviewerProfile from "./pages/profile/InterviewerProfile";
 import InterviewEvaluationForm from "./dashboards/InterviewerDashboard/InterviewEvaluationForm";
+import CandidateEvaluationForm from "./dashboards/candidateDashboard/CandidateEvaluationForm";
 
 function App() {
   return (
@@ -36,6 +37,10 @@ function App() {
           <Route
             path="/interviewer-feedback/:candidateId/:interviewRequestId"
             element={<InterviewEvaluationForm />}
+          />
+          <Route
+            path="/candidate-feedback/:interviewerId/:interviewRequestId"
+            element={<CandidateEvaluationForm />}
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/candidate-login" element={<CandidateLogin />} />

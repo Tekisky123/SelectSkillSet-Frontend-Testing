@@ -170,17 +170,11 @@ const InterviewerDashboard = () => {
                     </table>
                   </div>
 
-                  {/* Additional Components */}
                   <InterviewAvailability
                     allAvailability={profile.availability}
                   />
                   <InterviewRequests requests={profile.interviewRequests} />
-                  <InterviewerStatistics
-                    completedInterviews={profile.completedInterviews}
-                    pendingRequests={profile.pendingRequests}
-                    totalAccepted={profile.totalAccepted}
-                  />
-                  <InterviewerFeedback feedbacks={profile.feedbacks} />
+                  <InterviewerStatistics />
                 </div>
               </div>
             </div>

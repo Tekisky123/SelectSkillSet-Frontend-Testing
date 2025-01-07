@@ -158,29 +158,30 @@ input[type="number"] {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 180px;
-  height: 180px;
+  width: 160px;
+  height: 160px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.9);
   border-radius: 15px;
-  padding: 20px;
+  padding: 15px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 #loading p {
-  margin-top: 25px;
+  margin-top: 15px;
   color: #0077b5; /* LinkedIn blue */
-  font-size: 26px;
+  font-size: 20px;
   font-family: "Alegreya Sans SC", sans-serif;
   font-weight: bold;
   letter-spacing: 1.5px;
   animation: dots 2s steps(2) infinite;
   text-transform: uppercase;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  text-align: center;
 }
 
 @keyframes dots {
@@ -199,7 +200,7 @@ input[type="number"] {
 }
 
 .loader {
-  width: 80px;
+  width: 60px;
   aspect-ratio: 1;
   border-radius: 50%;
   background: radial-gradient(farthest-side, #0077b5 94%, #0000) top/8px 8px
@@ -220,16 +221,16 @@ input[type="number"] {
   #loading {
     width: 140px;
     height: 140px;
+    padding: 10px;
   }
 
   #loading p {
-    font-size: 20px;
-    margin-top: 15px;
+    font-size: 16px;
+    margin-top: 10px;
   }
 
   .loader {
-    width: 80px;
-    height: 80px;
+    width: 50px;
   }
 }
 
@@ -237,15 +238,15 @@ input[type="number"] {
   #loading {
     width: 120px;
     height: 120px;
+    padding: 8px;
   }
 
   #loading p {
-    font-size: 18px;
-    margin-top: 10px;
+    font-size: 14px;
+    margin-top: 8px;
   }
 
   .loader {
-    width: 60px;
-    height: 60px;
+    width: 40px;
   }
 }
