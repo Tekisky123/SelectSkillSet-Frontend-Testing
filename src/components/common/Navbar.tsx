@@ -52,9 +52,22 @@ export const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo on the left */}
           <div className="flex items-center space-x-4">
-            <Link to="/" className="text-linkedin text-3xl font-extrabold uppercase">
+            <span
+              onClick={() => {
+                if (candidateToken) {
+                  navigate("/candidate-dashboard");
+                } else if (interviewerToken) {
+                  navigate("/interviewer-dashboard");
+                } else if (corporateToken) {
+                  navigate("/corporate-dashboard");
+                } else {
+                  navigate("/");
+                }
+              }}
+              className="cursor-pointer text-linkedin text-3xl font-extrabold uppercase"
+            >
               Selectskillset
-            </Link>
+            </span>
           </div>
 
           {/* Desktop Menu */}

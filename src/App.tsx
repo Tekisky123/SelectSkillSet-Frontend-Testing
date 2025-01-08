@@ -20,6 +20,7 @@ import AboutUsPage from "./pages/about/AboutUsPage";
 import InterviewerProfile from "./pages/profile/InterviewerProfile";
 import InterviewEvaluationForm from "./dashboards/InterviewerDashboard/InterviewEvaluationForm";
 import CandidateEvaluationForm from "./dashboards/candidateDashboard/CandidateEvaluationForm";
+import AdminDashboard from "./dashboards/adminDashboard/AdminDashboard";
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
             element={<EditInterviewerProfile />}
           />
           <Route path="/verify-otp" element={<VerifyOtp />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
         <Toaster
           toastOptions={{

@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../components/common/axiosConfig";
 import InterviewRequests from "./InterviewRequests";
 import InterviewerStatistics from "./InterviewerStatistics";
-import InterviewerFeedback from "./InterviewerFeedback";
 import InterviewAvailability from "./InterviewAvailability";
 import profileimg from "../../images/interviewerProfile.png";
 import Loader from "../../components/ui/Loader";
