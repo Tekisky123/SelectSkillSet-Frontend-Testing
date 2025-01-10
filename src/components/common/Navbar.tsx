@@ -11,8 +11,14 @@ export const Navbar = () => {
   const candidateToken = sessionStorage.getItem("candidateToken");
   const interviewerToken = sessionStorage.getItem("interviewerToken");
   const corporateToken = sessionStorage.getItem("corporateToken");
+  const adminToken = sessionStorage.getItem("adminToken");
 
-  const userLoggedIn = !!(candidateToken || interviewerToken || corporateToken);
+  const userLoggedIn = !!(
+    candidateToken ||
+    interviewerToken ||
+    corporateToken ||
+    adminToken
+  );
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -35,22 +41,23 @@ export const Navbar = () => {
       navigate("/interviewer-dashboard");
     } else if (corporateToken) {
       navigate("/corporate-dashboard");
+    } else if (adminToken) {
+      navigate("/admin/dashboard");
     }
   };
 
-  // Handle logout action
   const handleLogout = () => {
     sessionStorage.removeItem("candidateToken");
     sessionStorage.removeItem("interviewerToken");
     sessionStorage.removeItem("corporateToken");
-    navigate("/"); // Redirect to home after logout
+    sessionStorage.removeItem("adminToken");
+    navigate("/");
   };
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 left-0 w-full z-50 ">
       <div className="mx-auto px-6 sm:px-8 lg:px-10">
         <div className="flex justify-between items-center h-20">
-          {/* Logo on the left */}
           <div className="flex items-center space-x-4">
             <span
               onClick={() => {
@@ -60,6 +67,8 @@ export const Navbar = () => {
                   navigate("/interviewer-dashboard");
                 } else if (corporateToken) {
                   navigate("/corporate-dashboard");
+                } else if (adminToken) {
+                  navigate("/admin/dashboard");
                 } else {
                   navigate("/");
                 }
@@ -113,12 +122,6 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <button
-                  onClick={handleProfileNavigation}
-                  className="bg-linkedin text-white text-lg font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-blue-500 transition duration-300"
-                >
-                  Dashboard
-                </button>
                 <button
                   onClick={handleLogout}
                   className="bg-red-600 text-white text-lg font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-red-500 transition duration-300"
@@ -208,15 +211,6 @@ export const Navbar = () => {
             </>
           ) : (
             <>
-              <button
-                onClick={() => {
-                  closeMenu();
-                  handleProfileNavigation();
-                }}
-                className="bg-linkedin text-white text-2xl font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-blue-500 transition duration-300"
-              >
-                Dashboard
-              </button>
               <button
                 onClick={() => {
                   closeMenu();

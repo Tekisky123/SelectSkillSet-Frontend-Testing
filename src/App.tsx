@@ -21,76 +21,90 @@ import InterviewerProfile from "./pages/profile/InterviewerProfile";
 import InterviewEvaluationForm from "./dashboards/InterviewerDashboard/InterviewEvaluationForm";
 import CandidateEvaluationForm from "./dashboards/candidateDashboard/CandidateEvaluationForm";
 import AdminDashboard from "./dashboards/adminDashboard/AdminDashboard";
+import AdminLogin from "./dashboards/adminDashboard/AdminLogin";
+import Footer from "./components/common/Footer";
+import AdminProfiles from "./dashboards/adminDashboard/AdminProfiles";
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-[#F3F2EF]">
-        <Navbar />
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutUsPage />} />
-          <Route
-            path="/interviewer-profile/:id"
-            element={<InterviewerProfile />}
-          />
-          <Route
-            path="/interviewer-feedback/:candidateId/:interviewRequestId"
-            element={<InterviewEvaluationForm />}
-          />
-          <Route
-            path="/candidate-feedback/:interviewerId/:interviewRequestId"
-            element={<CandidateEvaluationForm />}
-          />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/candidate-login" element={<CandidateLogin />} />
-          <Route path="/candidate-signup" element={<CandidateSignup />} />
-          <Route path="/candidate-dashboard" element={<CandidateDashboard />} />
-          <Route path="/corporate-login" element={<CorporateLogin />} />
-          <Route path="/corporate-signup" element={<CorporateSignup />} />
-          <Route
-            path="/interviewer-dashboard"
-            element={<InterviewerDashboard />}
-          />
-          <Route path="/interviewer-login" element={<InterviewerLogin />} />
-          <Route path="/interviewer-signup" element={<InterviewerSignup />} />
-          <Route
-            path="/edit-candidate-profile"
-            element={<EditCandidateProfile />}
-          />
-          <Route
-            path="/edit-interviewer-profile"
-            element={<EditInterviewerProfile />}
-          />
-          <Route path="/verify-otp" element={<VerifyOtp />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        </Routes>
-        <Toaster
-          toastOptions={{
-            duration: 5000,
-            style: {
-              fontSize: "18px",
-              padding: "16px",
-              borderRadius: "8px",
-              background: "#333",
-              color: "#fff",
-              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            },
-            success: {
+    <>
+      <Router>
+        <div className="min-h-screen bg-[#F3F2EF]">
+          <Navbar />
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutUsPage />} />
+            <Route
+              path="/interviewer-profile/:id"
+              element={<InterviewerProfile />}
+            />
+            <Route
+              path="/interviewer-feedback/:candidateId/:interviewRequestId"
+              element={<InterviewEvaluationForm />}
+            />
+            <Route
+              path="/candidate-feedback/:interviewerId/:interviewRequestId"
+              element={<CandidateEvaluationForm />}
+            />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/candidate-login" element={<CandidateLogin />} />
+            <Route path="/candidate-signup" element={<CandidateSignup />} />
+            <Route
+              path="/candidate-dashboard"
+              element={<CandidateDashboard />}
+            />
+            <Route path="/corporate-login" element={<CorporateLogin />} />
+            <Route path="/corporate-signup" element={<CorporateSignup />} />
+            <Route
+              path="/interviewer-dashboard"
+              element={<InterviewerDashboard />}
+            />
+            <Route path="/interviewer-login" element={<InterviewerLogin />} />
+            <Route path="/interviewer-signup" element={<InterviewerSignup />} />
+            <Route
+              path="/edit-candidate-profile"
+              element={<EditCandidateProfile />}
+            />
+            <Route
+              path="/edit-interviewer-profile"
+              element={<EditInterviewerProfile />}
+            />
+            <Route path="/verify-otp" element={<VerifyOtp />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route
+              path="/admin/dashboard/profiles"
+              element={<AdminProfiles />}
+            />
+            <Route path="/admin/login" element={<AdminLogin />} />
+          </Routes>
+          <Toaster
+            toastOptions={{
+              duration: 5000,
               style: {
-                background: "#28a745",
+                fontSize: "18px",
+                padding: "16px",
+                borderRadius: "8px",
+                background: "#333",
+                color: "#fff",
+                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
               },
-            },
-            error: {
-              style: {
-                background: "#dc3545",
+              success: {
+                style: {
+                  background: "#28a745",
+                },
               },
-            },
-          }}
-        />
-      </div>
-    </Router>
+              error: {
+                style: {
+                  background: "#dc3545",
+                },
+              },
+            }}
+          />
+          <Footer />
+        </div>
+      </Router>
+    </>
   );
 }
 

@@ -21,6 +21,7 @@ axiosInstance.interceptors.request.use(
     const interviewerToken = sessionStorage.getItem("interviewerToken");
     const candidateToken = sessionStorage.getItem("candidateToken");
     const corporateToken = sessionStorage.getItem("corporateToken");
+    const adminToken = sessionStorage.getItem("adminToken");
 
     let token;
     if (interviewerToken) {
@@ -29,6 +30,8 @@ axiosInstance.interceptors.request.use(
       token = candidateToken;
     } else if (corporateToken) {
       token = corporateToken;
+    } else if (adminToken) {
+      token = adminToken;
     }
 
     if (token) {
