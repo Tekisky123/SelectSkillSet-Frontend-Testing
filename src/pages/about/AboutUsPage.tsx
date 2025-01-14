@@ -10,7 +10,7 @@ const aboutUsData = [
     title: "About SELECTSKILLSET",
     description: [
       "At Selectskillset, we believe that practice and feedback are the cornerstones of success in the competitive world of IT. Founded by a team of industry professionals and hiring specialists, our platform was created to empower job seekers, freelancers, and HR professionals alike.",
-      "We understand the challenges candidates face when preparing for interviews in today’s fast-paced IT industry. Likewise, we know companies strive to hire skilled professionals who can make an immediate impact. SkillAssess addresses both needs by offering a platform where:",
+      "We understand the challenges candidates face when preparing for interviews in today’s fast-paced IT industry. Likewise, we know companies strive to hire skilled professionals who can make an immediate impact. SELECTSKILLSET addresses both needs by offering a platform where:",
     ],
     points: [
       "Candidates can fine-tune their skills through real-world mock interviews and insightful feedback.",

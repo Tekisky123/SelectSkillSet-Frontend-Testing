@@ -102,7 +102,7 @@ export const Navbar = () => {
                   About Us
                 </Link>
                 <Link
-                  to="/become-interviewer"
+                  to="/interviewer-login"
                   className="text-gray-800 hover:text-linkedin text-lg font-medium transition duration-300"
                 >
                   Become an Interviewer

@@ -33,6 +33,8 @@ const CandidateInterviews = () => {
   const [viewMore, setViewMore] = useState<{ [key: string]: boolean }>({});
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [isConfirming, setIsConfirming] = useState<boolean>(false); // Track confirmation state
+  const [scheduledMessage, setScheduledMessage] = useState<string | null>(null); // For slot already booked message
 
   const itemsPerPage = 3;
 
@@ -71,8 +73,12 @@ const CandidateInterviews = () => {
   };
 
   const handleRequestInterview = async () => {
+    if (isConfirming) return; // Prevent multiple clicks
+    setIsConfirming(true); // Disable the button and show loader
+
     if (!selectedSlot || !selectedSlot.interviewerId) {
       toast.error("Please select a valid slot!");
+      setIsConfirming(false);
       return;
     }
 
@@ -82,6 +88,7 @@ const CandidateInterviews = () => {
 
     if (!interviewer) {
       toast.error("Interviewer not found!");
+      setIsConfirming(false);
       return;
     }
 
@@ -97,6 +104,9 @@ const CandidateInterviews = () => {
       if (response.data.success) {
         toast.success("Interview scheduled successfully!");
         playSound();
+        setScheduledMessage(
+          `Interview already scheduled for ${selectedSlot.date}`
+        );
         setModalVisible(false);
       } else {
         if (response.data.message) {
@@ -107,6 +117,8 @@ const CandidateInterviews = () => {
       }
     } catch (err) {
       toast.error(err.response.data.message);
+    } finally {
+      setIsConfirming(false); // Re-enable the button after API call
     }
   };
 
@@ -141,7 +153,7 @@ const CandidateInterviews = () => {
           {paginatedInterviewers.map((interviewer) => (
             <div
               key={interviewer._id}
-              className="p-6 rounded-lg shadow-lg border bg-white flex flex-col md:flex-row  gap-6 transition-all duration-300 hover:shadow-xl"
+              className="p-6 rounded-lg shadow-lg border bg-white flex flex-col md:flex-row gap-6 transition-all duration-300 hover:shadow-xl"
             >
               <img
                 src={interviewer.profilePhoto || profile}
@@ -273,9 +285,12 @@ const CandidateInterviews = () => {
               </button>
               <button
                 onClick={handleRequestInterview}
-                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200"
+                disabled={isConfirming} // Disable button while confirming
+                className={`${
+                  isConfirming ? "bg-gray-500" : "bg-blue-500"
+                } px-6 py-2 text-white rounded-md hover:bg-blue-600 transition duration-200`}
               >
-                Confirm
+                {isConfirming ? "Processing..." : "Confirm"}
               </button>
             </div>
           </div>

@@ -24,6 +24,9 @@ import AdminDashboard from "./dashboards/adminDashboard/AdminDashboard";
 import AdminLogin from "./dashboards/adminDashboard/AdminLogin";
 import Footer from "./components/common/Footer";
 import AdminProfiles from "./dashboards/adminDashboard/AdminProfiles";
+import CorporateDashboard from "./dashboards/corporateDashboard/CorporateDashboard";
+import EditCorporateProfile from "./dashboards/corporateDashboard/EditCorporateProfile";
+import FilterCandidates from "./dashboards/corporateDashboard/FilterCandidates";
 
 function App() {
   return (
@@ -56,6 +59,18 @@ function App() {
             />
             <Route path="/corporate-login" element={<CorporateLogin />} />
             <Route path="/corporate-signup" element={<CorporateSignup />} />
+            <Route
+              path="/corporate-dashboard"
+              element={<CorporateDashboard />}
+            />
+            <Route
+              path="/corporate/edit-profile"
+              element={<EditCorporateProfile />}
+            />
+            <Route
+              path="/corporate/filter-candidate"
+              element={<FilterCandidates />}
+            />
             <Route
               path="/interviewer-dashboard"
               element={<InterviewerDashboard />}

@@ -147,7 +147,8 @@ const CandidateStatistics = () => {
                 Feedback {index + 1}
               </h4>
               <div className="flex items-center space-x-4 mb-2">
-                {feedback.interviewer.profilePhoto ? (
+                {/* Check if interviewer exists and has a profile photo */}
+                {feedback.interviewer && feedback.interviewer.profilePhoto ? (
                   <img
                     src={feedback.interviewer.profilePhoto}
                     alt={`${feedback.interviewer.firstName} ${feedback.interviewer.lastName}`}
@@ -156,15 +157,15 @@ const CandidateStatistics = () => {
                 ) : (
                   <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                     <span className="text-sm font-bold">
-                      {feedback.interviewer.firstName[0]}
-                      {feedback.interviewer.lastName[0]}
+                      {feedback.interviewer?.firstName[0]}
+                      {feedback.interviewer?.lastName[0]}
                     </span>
                   </div>
                 )}
                 <div>
                   <p className="font-semibold">
-                    {feedback.interviewer.firstName}{" "}
-                    {feedback.interviewer.lastName}
+                    {feedback.interviewer?.firstName}{" "}
+                    {feedback.interviewer?.lastName}
                   </p>
                   <p className="text-sm text-gray-500">
                     {feedback.interviewDate}
