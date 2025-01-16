@@ -184,7 +184,7 @@ const CandidateInterviews = () => {
                   </h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {interviewer.availability.dates
-                      .slice(0, viewMore[interviewer._id] ? undefined : 4)
+                      .slice(0, viewMore[interviewer._id] ? undefined : 6)
                       .map((date) => (
                         <div
                           key={date._id}
@@ -214,7 +214,7 @@ const CandidateInterviews = () => {
                         </div>
                       ))}
                   </div>
-                  {interviewer.availability.dates.length > 4 && (
+                  {interviewer.availability.dates.length > 6 && (
                     <button
                       onClick={() => toggleViewMore(interviewer._id)}
                       className="mt-3 text-blue-600 text-sm font-semibold hover:underline transition duration-200"

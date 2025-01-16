@@ -16,7 +16,9 @@ interface InterviewRequest {
 const InterviewRequests: React.FC = () => {
   const [requests, setRequests] = useState<InterviewRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true); // Track loading state for API call
-  const [actionLoading, setActionLoading] = useState<string | null>(null); // Track loading for action buttons
+  const [loadingRequests, setLoadingRequests] = useState<Set<string>>(
+    new Set()
+  ); // Track loading requests
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -25,7 +27,6 @@ const InterviewRequests: React.FC = () => {
         const response = await axiosInstance.get(
           "/interviewer/getInterviewRequests"
         );
-
         if (response.data && Array.isArray(response.data.interviewRequests)) {
           setRequests(response.data.interviewRequests);
         } else {
@@ -47,16 +48,12 @@ const InterviewRequests: React.FC = () => {
     id: string,
     action: "Approved" | "Cancelled"
   ) => {
-    setActionLoading(id); // Set the button loading state
+    setLoadingRequests((prev) => new Set(prev.add(id))); // Add the request ID to the loading set
     try {
-      const payload = {
-        interviewRequestId: id,
-        status: action,
-      };
-
+      const payload = { interviewRequestId: id, status: action };
       await axiosInstance.put("/interviewer/updateInterviewRequest", payload);
 
-      // Update the specific request's status in the state
+      // Update the request status in the state
       setRequests((prevRequests) =>
         prevRequests.map((request) =>
           request.id === id ? { ...request, status: action } : request
@@ -65,7 +62,11 @@ const InterviewRequests: React.FC = () => {
     } catch (error) {
       console.error("Error handling response for request:", error);
     } finally {
-      setActionLoading(null); // Reset button loading state
+      setLoadingRequests((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(id); // Remove the request ID from the loading set
+        return newSet;
+      });
     }
   };
 
@@ -127,25 +128,35 @@ const InterviewRequests: React.FC = () => {
                 <div className="flex space-x-3 ml-4">
                   <button
                     onClick={() => handleResponse(request.id, "Approved")}
-                    className={`px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition ${
-                      actionLoading === request.id
+                    className={`relative px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition ${
+                      loadingRequests.has(request.id)
                         ? "opacity-50 cursor-wait"
                         : ""
                     }`}
-                    disabled={actionLoading === request.id}
+                    disabled={loadingRequests.has(request.id)}
                   >
-                    {actionLoading === request.id ? "Processing..." : "Approve"}
+                    {loadingRequests.has(request.id) && (
+                      <div className="absolute inset-0 flex justify-center items-center">
+                        <Loader className="opacity-100" />
+                      </div>
+                    )}
+                    {!loadingRequests.has(request.id) && "Approve"}
                   </button>
                   <button
                     onClick={() => handleResponse(request.id, "Cancelled")}
-                    className={`px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition ${
-                      actionLoading === request.id
+                    className={`relative px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition ${
+                      loadingRequests.has(request.id)
                         ? "opacity-50 cursor-wait"
                         : ""
                     }`}
-                    disabled={actionLoading === request.id}
+                    disabled={loadingRequests.has(request.id)}
                   >
-                    {actionLoading === request.id ? "Processing..." : "Cancel"}
+                    {loadingRequests.has(request.id) && (
+                      <div className="absolute inset-0 flex justify-center items-center">
+                        <Loader className="opacity-100" />
+                      </div>
+                    )}
+                    {!loadingRequests.has(request.id) && "Cancel"}
                   </button>
                 </div>
               )}

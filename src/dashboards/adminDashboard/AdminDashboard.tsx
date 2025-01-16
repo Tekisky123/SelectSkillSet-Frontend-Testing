@@ -43,17 +43,20 @@ const AdminDashboard = () => {
   const {
     totalCandidates = 0,
     totalInterviewers = 0,
+    totalCorporates = 0,
     pendingCount = 0,
     completedCount = 0,
     cancelledCount = 0,
     candidates = [],
     interviewers = [],
+    corporates = [],
   } = data;
 
   const barChartData = {
     labels: [
       "Total Candidates",
       "Total Interviewers",
+      "Total Corporates",
       "Pending",
       "Completed",
       "Cancelled",
@@ -64,6 +67,7 @@ const AdminDashboard = () => {
         data: [
           totalCandidates,
           totalInterviewers,
+          totalCorporates,
           pendingCount,
           completedCount,
           cancelledCount,
@@ -71,6 +75,7 @@ const AdminDashboard = () => {
         backgroundColor: [
           "#0073b1",
           "#00a0dc",
+          "#FF6B6B",
           "#7fb9e1",
           "#cce4f7",
           "#174774",
@@ -94,16 +99,20 @@ const AdminDashboard = () => {
     list.length ? (
       list.map((item) => (
         <tr key={item._id} className="hover:bg-gray-100">
-          <td className="border border-gray-300 p-3">{`${item.firstName} ${item.lastName}`}</td>
+          <td className="border border-gray-300 p-3">{`${
+            item.firstName || item.contactName
+          } ${item.lastName || ""}`}</td>
           <td className="border border-gray-300 p-3">{item.email}</td>
           <td className="border border-gray-300 p-3">
-            {item.jobTitle || "N/A"}
+            {type === "corporates" ? item.companyName : item.jobTitle || "N/A"}
           </td>
           <td className="border border-gray-300 p-3">
-            {item.location || "N/A"}
+            {type === "corporates" ? item.location : item.location || "N/A"}
           </td>
           <td className="border border-gray-300 p-3">
-            {type === "candidates"
+            {type === "corporates"
+              ? item.industry || "N/A"
+              : type === "candidates"
               ? item.scheduledInterviews?.length || "No Interviews"
               : item.interviewRequests?.length || "No Interviews"}
           </td>
@@ -134,10 +143,11 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
             { label: "Total Candidates", value: totalCandidates },
             { label: "Total Interviewers", value: totalInterviewers },
+            { label: "Total Corporates", value: totalCorporates },
             { label: "Pending Interviews", value: pendingCount },
           ].map((stat) => (
             <motion.div
@@ -183,6 +193,7 @@ const AdminDashboard = () => {
             data: interviewers,
             type: "interviewers",
           },
+          { title: "Corporates List", data: corporates, type: "corporates" },
         ].map((table) => (
           <div
             key={table.title}
@@ -202,13 +213,15 @@ const AdminDashboard = () => {
                       Email
                     </th>
                     <th className="border border-gray-300 p-3 text-left">
-                      Job Title
+                      {table.type === "corporates"
+                        ? "Company Name"
+                        : "Job Title"}
                     </th>
                     <th className="border border-gray-300 p-3 text-left">
                       Location
                     </th>
                     <th className="border border-gray-300 p-3 text-left">
-                      Interviews
+                      {table.type === "corporates" ? "Industry" : "Interviews"}
                     </th>
                   </tr>
                 </thead>
