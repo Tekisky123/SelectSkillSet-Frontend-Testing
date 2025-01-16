@@ -191,6 +191,7 @@ const CandidateDashboard = () => {
                           <a
                             href={profile.resume}
                             className="text-blue-500 hover:underline"
+                            target="_blank"
                           >
                             Download Resume
                           </a>
